@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<title>女騎士と7人のゴブリン</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:#14101f;color:#f3ecd8;font-family:"Hiragino Sans","Yu Gothic",sans-serif;min-height:100vh}
+#app{max-width:520px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:100vh}
+h1{font-size:26px;text-align:center;color:#ffd86b;text-shadow:0 2px 0 #7a3b00;margin:18px 0 4px}
+.sub{text-align:center;color:#b9a;font-size:13px}
+.bar{display:flex;justify-content:space-between;background:#2a2142;border:2px solid #6b5aa8;border-radius:10px;padding:6px 10px;font-size:14px}
+.scene{height:130px;border-radius:14px;border:3px solid #ffd86b;display:flex;align-items:center;justify-content:center;font-size:64px;background:linear-gradient(160deg,#2f6b4a,#1b2f5c)}
+.win{background:#1c2b6b;border:3px solid #fff;border-radius:12px;padding:12px;font-size:15px;line-height:1.7;box-shadow:0 0 0 2px #1c2b6b}
+.who{font-weight:bold;color:#ffd86b;margin-bottom:2px}
+.btn{background:linear-gradient(#ffd86b,#e09a1f);color:#3a2000;border:0;border-radius:10px;padding:12px;font-size:16px;font-weight:bold;cursor:pointer}
+.btn.alt{background:#3b2f63;color:#f3ecd8;border:2px solid #6b5aa8}
+.btn:disabled{opacity:.4}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.hand{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.card{background:linear-gradient(160deg,#fff6d6,#e6cf8e);color:#3a2a10;border:3px solid #8a5f17;outline:2px solid #f3d98a;outline-offset:-6px;border-radius:12px;padding:10px 3px 8px;text-align:center;cursor:pointer;min-height:124px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-shadow:0 4px 0 #5a3a08,0 6px 10px #0008;transition:transform .12s}
+.card:active{transform:translateY(3px)}.card:disabled{color:#3a2a10}
+.card.sel{transform:translateY(-8px);outline-color:#ff6b6b;box-shadow:0 0 14px #ff6b6b,0 4px 0 #5a3a08}
+.card.sel::after{content:"✔";position:absolute;left:4px;top:2px;color:#d22;font-weight:bold}
+.btn.alt.opt{background:linear-gradient(160deg,#fff6d6,#e6cf8e);color:#3a2a10;border:3px solid #8a5f17;outline:2px solid #f3d98a;outline-offset:-6px;box-shadow:0 4px 0 #5a3a08;padding:16px;line-height:1.5}
+@keyframes shim{0%{background-position:0 0}100%{background-position:200% 0}}
+.card.rare{background:linear-gradient(115deg,#f4f7ff 20%,#aab8d8 40%,#fff 50%,#aab8d8 60%,#f4f7ff 80%);background-size:200% 100%;animation:shim 3s linear infinite;border-color:#7d8ab0;outline-color:#dfe8ff;box-shadow:0 0 10px #bcd,0 4px 0 #44506f}
+.card .ci{font-size:36px;filter:drop-shadow(0 2px 2px #0005)}.card .cn{font-size:13px;font-weight:bold;word-break:break-all;background:#8a5f17;color:#fff3c8;border-radius:5px;padding:2px 3px;width:92%}.card.rare .cn{background:#56668f}.card .st{position:absolute;top:2px;right:5px;font-size:13px;color:#5a6a9a}
+.hand:not(.big) .card .ci{font-size:28px}.hand:not(.big) .card .cn{font-size:10px}.hand:not(.big) .card{min-height:96px}
+.hand.big{grid-template-columns:repeat(3,1fr)}
+.ov{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:9}
+.good{font-size:56px;font-weight:900;color:#ffe45e;text-shadow:0 0 18px #ff9a00,0 4px 0 #a02000;animation:pop .7s ease-out}
+.ng{font-size:40px;color:#9ab;animation:pop .4s}
+@keyframes pop{0%{transform:scale(.2) rotate(-12deg);opacity:0}60%{transform:scale(1.3) rotate(4deg)}100%{transform:scale(1);opacity:1}}
+.gob{display:inline-block;background:#3f8a3f;border-radius:50%;width:36px;height:36px;text-align:center;line-height:36px;margin-right:6px}
+.opt{text-align:left}
+small{color:#b9a}
+#orc{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 4px);margin-top:auto;z-index:10;display:flex;gap:10px;align-items:center;background:#241a3f;border:2px solid #c9b3ff;border-radius:12px;padding:8px;box-shadow:0 2px 10px #000a}
+#orc .rk{min-width:64px;text-align:center;border-right:1px solid #6b5aa8;padding-right:8px}
+#orc .rk b{display:block;font-size:30px;line-height:1}
+#orc .rk span{font-size:11px;color:#c9b3ff}
+#orc .gg{height:7px;background:#0007;border-radius:4px;margin-top:4px;overflow:hidden}
+#orc .gg i{display:block;height:100%;background:linear-gradient(90deg,#e55,#fd5,#6d6)}
+#orc .cm{font-size:12.5px;line-height:1.5;flex:1}
+#orc .cm u{text-decoration:none;color:#ffd86b;font-weight:bold;font-size:11px}
+.chw{border:4px double #ffd86b;background:#201638;border-radius:14px;padding:10px;box-shadow:0 0 14px #ffd86b55}
+.chh{font-weight:bold;color:#ffd86b;border-bottom:1px solid #6b5aa8;margin-bottom:8px;padding-bottom:4px}
+.dlg{display:flex;gap:8px;align-items:stretch}.dlg .tx{flex:1;font-size:14px;line-height:1.7}
+.pt{flex:none;border:3px solid #ffd86b;background:linear-gradient(#3d3a7a,#1b1a44);border-radius:8px;padding:2px;box-shadow:inset 0 0 8px #000,0 0 0 2px #1c2b6b;display:flex;align-items:center;justify-content:center;align-self:flex-start}
+.pt svg{image-rendering:pixelated}
+.pen{margin-top:6px;background:#0005;border-left:3px solid #ff8a8a;padding:4px 8px;font-size:13px}
+body{background:radial-gradient(#16303a,#070d12);font-family:'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif}
+.win,.chw{background:linear-gradient(#10305a,#0a1a38);border:3px solid #c9a24b;border-radius:4px;box-shadow:inset 0 0 0 2px #0a1830,inset 0 0 0 3px #7a5c1f,0 3px 8px #000a;color:#f3ecd8}
+.chw{border-style:solid}.chh{border-bottom:1px solid #c9a24b}
+.btn{background:linear-gradient(#4a3516,#24180a);color:#ffe9a8;border:2px solid #c9a24b;border-radius:3px;text-shadow:0 1px 0 #000;box-shadow:inset 0 0 0 1px #7a5c1f}
+.btn.alt{background:linear-gradient(#173a5c,#0c1e34);color:#ffe9a8;border:2px solid #c9a24b}
+.scene{border-radius:4px;border:3px solid #c9a24b;box-shadow:inset 0 0 0 2px #0a1830;background:linear-gradient(#12353f,#0a1822);height:110px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;flex-direction:column;gap:4px;background:linear-gradient(#10305a,#0a1a38);border:3px solid #c9a24b;border-radius:4px;box-shadow:inset 0 0 0 2px #0a1830,0 3px 8px #000a}
+.bar .ph{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.bar .ph span{text-align:center;padding:3px 0;border:1px solid #5a4a22;border-radius:3px;color:#8a8a8a;font-size:13px}
+.bar .ph span.on{background:linear-gradient(#ffe08a,#d4962a);color:#2a1800;font-weight:bold;border-color:#fff3c0;box-shadow:0 0 8px #ffd86b}
+.bar .st{display:flex;justify-content:space-between;font-size:13px}
+#orc{background:linear-gradient(#10305a,#0a1a38);border:3px solid #c9a24b;border-radius:4px}
+.mapv{position:relative;height:340px;border:3px solid #c9a24b;box-shadow:inset 0 0 0 2px #0a1830;background:#1c3b2c;background-image:linear-gradient(#4fa36e44 1px,transparent 1px),linear-gradient(90deg,#4fa36e44 1px,transparent 1px);background-size:28px 28px;overflow:hidden}
+.mapv svg{position:absolute;inset:0;width:100%;height:100%}
+.nd{position:absolute;transform:translate(-50%,-50%);width:74px;text-align:center;background:linear-gradient(#4a3516,#24180a);border:2px solid #ffd86b;border-radius:6px;color:#ffe9a8;padding:4px 0;font-size:13px;font-family:inherit;cursor:pointer;box-shadow:0 0 10px #000a}
+.nd i{display:block;font-style:normal;font-size:26px}.nd small{display:block;font-size:10px;color:#ff9a9a}
+.nd.ch{border-color:#ff8a8a}.nd:disabled{opacity:.4}
+.k力{background:#b8352b}.k心{background:#c25a8a}.k知{background:#2f6fb0}
+.ct{width:calc(100% + 6px);margin:-10px -3px 2px;padding:2px 0;font-size:11px;font-weight:bold;color:#fff;border-radius:8px 8px 0 0;text-shadow:0 1px 0 #0008}
+.lg{display:grid;gap:3px;font-size:11px}.lg span{padding:3px 8px;border-radius:3px;color:#fff;text-shadow:0 1px 0 #0008}
+.card.gold{background:linear-gradient(135deg,#fff3b0,#e8b820 50%,#fff3b0);border-color:#9a6b00;outline-color:#fff6c8;box-shadow:0 0 12px #ffd86b,0 4px 0 #5a3a08}.card.gold .st{color:#9a6b00}.kg{background:#9a6b00}
+#orc .gg i{transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.ev{font-size:24px;color:#fff;font-weight:900;text-shadow:0 0 8px #ffd86b}
+.dl{position:absolute;left:12px;top:-44px;font-size:38px;font-weight:900;pointer-events:none;animation:dlp 1.8s ease-out forwards;text-shadow:0 0 10px #000,0 2px 0 #000}.dl.up{color:#7dff8a}.dl.dn{color:#ff6b6b}
+@keyframes dlp{0%{opacity:0;transform:translateY(16px) scale(.4)}18%{opacity:1;transform:translateY(0) scale(1.5)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-24px)}}
+.fu{animation:fu 1.2s}.fd{animation:fd 1.2s}@keyframes fu{30%{box-shadow:0 0 26px #7dff8a;border-color:#7dff8a}}@keyframes fd{30%{box-shadow:0 0 26px #ff6b6b;border-color:#ff6b6b}}
+.dnum{font-size:32px;font-weight:900;margin:6px 0;text-shadow:0 2px 0 #000;animation:pop .5s}.dnum.up{color:#7dff8a}.dnum.dn{color:#ff6b6b}
+.nd.mys{border-color:#c58bff;background:linear-gradient(#3a1a5c,#1a0a30);animation:mg 1.6s infinite}@keyframes mg{50%{box-shadow:0 0 18px #c58bff}}
+.rA{color:#ffd86b}.rB{color:#7fe08a}.rC{color:#8ab8ff}.rD{color:#ff8a8a}
+
+/* ===== SNES style ===== */
+body{background-color:#0a0a30;background-image:linear-gradient(45deg,#12124a 25%,transparent 25%,transparent 75%,#12124a 75%),linear-gradient(45deg,#12124a 25%,transparent 25%,transparent 75%,#12124a 75%);background-size:8px 8px;background-position:0 0,4px 4px;font-family:'DotGothic16','MS Gothic','Osaka-Mono','Hiragino Kaku Gothic ProN',monospace;-webkit-font-smoothing:none;letter-spacing:.5px;color:#fff}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;background:repeating-linear-gradient(#0000 0 2px,#0000001c 2px 3px)}
+#app{padding:16px 16px 28px;gap:14px}
+h1{font-size:30px;line-height:1.3;color:#f8e040;text-shadow:3px 3px 0 #c03000,5px 5px 0 #000;letter-spacing:2px}
+.sub{color:#a8c8f8;text-shadow:2px 2px 0 #000}
+.win,.chw,.bar,#orc{background:linear-gradient(#2c50e4,#0c1472);border:3px solid #f8f8f8;border-radius:8px;box-shadow:0 0 0 3px #000,inset 0 0 0 2px #6878d8,4px 5px 0 3px #0009;color:#fff;text-shadow:2px 2px 0 #000}
+.win,.chw{padding:12px 14px}
+.who,.chh{color:#f8e040}.chh{border-bottom:2px solid #8898e8}
+.bar{top:calc(env(safe-area-inset-top,0px) + 4px);padding:6px 10px}
+.bar .ph span{border:2px solid #5868c8;border-radius:0;color:#8898d8}
+.bar .ph span.on{background:linear-gradient(#f8e060,#d88018);color:#281000;border-color:#fff;text-shadow:none;box-shadow:none}
+.bar .st{flex-wrap:wrap;gap:2px 8px;font-size:12px}.bar .cb{color:#7888c0}.bar .cb.on{color:#ffb040}
+#orc{position:relative;bottom:auto;margin-top:0;z-index:1;padding:8px 10px}
+#orc .rk{border-right:2px solid #8898e8}
+#orc .gg{position:relative;border:2px solid #fff;border-radius:0;height:10px}
+#orc .gg::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,#0000 0 5px,#000a 5px 7px)}
+.dl{top:6px;left:auto;right:84px;z-index:12}
+.pt{border:3px solid #fff;border-radius:4px;background:linear-gradient(#202a90,#0a1050);box-shadow:0 0 0 2px #000,inset 0 0 0 2px #6878d8}
+.btn{font-family:inherit;background:linear-gradient(#f8e060,#d88018);color:#281000;text-shadow:1px 1px 0 #fff8;border:3px solid #fff;border-radius:6px;box-shadow:0 0 0 3px #000,3px 4px 0 3px #000a;margin:3px}
+.btn.alt,.btn.alt.opt{background:linear-gradient(#2c50e4,#0c1472);color:#fff;text-shadow:2px 2px 0 #000;border:3px solid #fff;outline:none;box-shadow:0 0 0 3px #000,3px 4px 0 3px #000a}
+.btn:disabled{opacity:.45;filter:grayscale(.6)}
+.btn:not(:disabled):active{transform:translate(2px,3px);box-shadow:0 0 0 3px #000,1px 1px 0 3px #000a}
+.grid{gap:12px}.hand{gap:8px}
+.card{font-family:inherit;background:linear-gradient(#fffbe8,#e8d89c);color:#301c08;border:3px solid #000;border-radius:3px;outline:none;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px #b08838,4px 4px 0 #000;text-shadow:none;transition:none}
+.card:active{transform:translate(2px,2px)}
+.card.sel{outline:none;transform:translateY(-6px);box-shadow:inset 0 0 0 2px #fff,0 0 0 3px #f83838,4px 4px 0 3px #000}
+.card .cn{background:#b08838;border-radius:0;color:#fff;text-shadow:1px 1px 0 #000}.ct{border-radius:0}
+.card.rare{background:repeating-linear-gradient(135deg,#f0f4ff 0 8px,#c0ccec 8px 16px);animation:none;outline:none;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px #7080b0,4px 4px 0 #000}
+.card.gold{background:repeating-linear-gradient(135deg,#fff3a0 0 8px,#f0c020 8px 16px);outline:none;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px #b07800,4px 4px 0 #000}
+.scene{height:110px;border:3px solid #fff;border-radius:8px;box-shadow:0 0 0 3px #000,4px 5px 0 3px #0009;background:linear-gradient(#183878 0 25%,#2058a8 25% 50%,#2878c8 50% 70%,#2c8a3c 70% 85%,#206830 85%);text-shadow:3px 3px 0 #0006}
+.mapv{height:320px;border:3px solid #fff;border-radius:6px;box-shadow:0 0 0 3px #000,4px 5px 0 3px #0009;background-color:#3a9a48;background-image:linear-gradient(45deg,#2f8a3c 25%,transparent 25%,transparent 75%,#2f8a3c 75%),linear-gradient(45deg,#2f8a3c 25%,transparent 25%,transparent 75%,#2f8a3c 75%);background-size:32px 32px;background-position:0 0,16px 16px}
+.nd{font-family:inherit;border:3px solid #fff;border-radius:6px;background:linear-gradient(#2c50e4,#0c1472);color:#fff;box-shadow:0 0 0 2px #000,3px 4px 0 2px #000a;text-shadow:2px 2px 0 #000}
+.nd small{color:#f8c8c8}.nd.mys{background:linear-gradient(#7a2ad0,#2a0a70);border-color:#f0d8ff}.nd.ch{border-color:#ffb0b0}
+.lg span{border-radius:0;border:2px solid #000}
+.good{color:#f8f038;text-shadow:4px 4px 0 #d03000,0 0 0 #000;animation:pop .7s steps(8)}.ng{animation:pop .4s steps(5)}
+.ov{background:#000b}
+.pen{border-left:3px solid #f8e040;background:#0006}
+.cmb{color:#ffb040;margin-top:6px}
+.scene.bt .foe{font-size:72px;animation:bob 1s steps(2) infinite}.scene.boss{background:linear-gradient(#400010 0 30%,#700020 30% 60%,#300010 60%)}.scene.boss .foe{font-size:84px}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.hpw{display:flex;align-items:center;gap:8px;margin:6px 0}.hpb{flex:1;height:12px;background:#000;border:2px solid #fff}.hpb i{display:block;height:100%;background:linear-gradient(#f8f8a0,#f8c820);transition:width .4s steps(5)}
+
+.cbw{display:flex;align-items:baseline;justify-content:center;gap:10px;background:#000;border:3px solid #5868c8;box-shadow:0 0 0 3px #000;padding:4px 8px;color:#7888c0;text-shadow:2px 2px 0 #000}
+.cbw b{letter-spacing:3px}.cbw .n{font-size:26px}.cbw.on{border-color:#ffb040;color:#ffb040;animation:cbp .6s steps(2) infinite}
+@keyframes cbp{50%{background:#301800}}
+.rvo{display:grid;gap:14px}
+.rvb{font-family:inherit;text-align:left;color:#fff;text-shadow:2px 2px 0 #000;border:3px solid #fff;border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px;cursor:pointer;font-size:15px}
+.rvb.hi{background:linear-gradient(#e03030,#600010);box-shadow:0 0 0 3px #000,3px 4px 0 3px #000a}
+.rvb.lo{background:linear-gradient(#2c50e4,#0c1472);box-shadow:0 0 0 3px #000,3px 4px 0 3px #000a}
+.rvb b{font-size:17px}.rvb .pb{height:12px;background:#601010;border:2px solid #fff}.rvb .pb i{display:block;height:100%;background:#7dff8a}
+.rvb .rr{display:flex;justify-content:space-between;gap:8px;font-size:14px}.rvb em{font-style:normal;padding:2px 6px;background:#000a}
+.rvb em.up{color:#7dff8a}.rvb em.dn{color:#ff8a8a}.rvb:active{transform:translate(2px,3px)}
+
+.pty{display:flex;gap:6px;margin:4px 0;align-items:center}.pty .gv{font-size:22px;filter:grayscale(1)}
+.dth{flex-direction:column;gap:10px;text-align:center;padding:16px;animation:fl .6s steps(4)}
+@keyframes fl{0%{background:#fff}100%{background:#000d}}
+.dth svg{filter:grayscale(1);animation:sfade 1.8s steps(8) forwards}
+@keyframes sfade{0%{opacity:1}50%{transform:rotate(-20deg)}100%{opacity:.35;transform:translateY(14px) rotate(-90deg)}}
+.dth .ln{color:#c8c8d8;text-shadow:2px 2px 0 #000;line-height:1.7}
+body.sad{background-color:#05050f}
+body.sad .scene,body.sad .win,body.sad .chw,body.sad .bar,body.sad #orc,body.sad .card{filter:grayscale(.6) brightness(.82)}
+body.sad::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:98;background:repeating-linear-gradient(105deg,#0000 0 9px,#8ab4cc55 9px 10px);background-size:40px 40px;animation:rain .5s steps(4) infinite}
+@keyframes rain{to{background-position:-8px 40px}}
+.rkbig{font-size:72px;font-weight:900;text-align:center;color:#f8e040;text-shadow:4px 4px 0 #c03000,6px 6px 0 #000;letter-spacing:4px}.rkbig.m{color:#a8a8c8;text-shadow:4px 4px 0 #404060,6px 6px 0 #000}
+
+.card.rare{border:3px solid transparent;background:linear-gradient(#fffbe8,#e8d89c) padding-box,linear-gradient(135deg,#fff,#9aa4c0,#e8ecf8,#7d88a8,#fff) border-box;box-shadow:0 0 0 2px #000,3px 4px 0 2px #000}
+.card.sr{border:3px solid transparent;background:linear-gradient(#fffbe8,#f2e6b8) padding-box,linear-gradient(135deg,#ff4d4d,#ffa500,#f6f13a,#3ddc6a,#3aa0ff,#b04dff,#ff4dd2) border-box;box-shadow:0 0 0 2px #000,0 0 10px #fff9,3px 4px 0 2px #000}
+.card.sel.rare,.card.sel.sr{box-shadow:0 0 0 3px #f83838,4px 4px 0 3px #000}
+.ksr{background:linear-gradient(90deg,#f33,#fa0,#ee3,#3d6,#39f,#a5f)}
+.card .ab{font-size:9px;line-height:1.2;color:#802090;font-weight:bold;text-shadow:none}
+.win.ev1{border-color:transparent;background:linear-gradient(#2c50e4,#0c1472) padding-box,linear-gradient(135deg,#fff,#9aa4c0,#e8ecf8,#7d88a8,#fff) border-box}
+.win.ev2{border-color:transparent;background:linear-gradient(#2c50e4,#0c1472) padding-box,linear-gradient(135deg,#ff4d4d,#ffa500,#f6f13a,#3ddc6a,#3aa0ff,#b04dff,#ff4dd2) border-box;box-shadow:0 0 0 3px #000,0 0 12px #fff9}
+.dth{pointer-events:none;animation:fl .25s steps(3)}.dth svg{animation:sfade .6s steps(6) forwards}
+
+/* ===== card UI v8 ===== */
+.card{background:#f6efd6;border:2px solid #000;border-radius:2px;box-shadow:3px 3px 0 #000;outline:none}
+.card .cn{background:none;color:#301c08;text-shadow:none;border-radius:0;padding:0;font-weight:bold}
+.card .ct{font-weight:normal;opacity:.9}
+.card.rare{border:4px solid transparent;background:linear-gradient(#fbf8ec,#fbf8ec) padding-box,linear-gradient(135deg,#f8fbff,#8e98b4,#e6ebf6,#6f7a9a,#f8fbff) border-box;background-size:auto,300% 300%;box-shadow:0 0 0 2px #000,3px 4px 0 2px #000;animation:sv 3s steps(12) infinite}
+.card.rare .cn{background:#6a7490;color:#fff;text-shadow:1px 1px 0 #000;padding:2px 3px}
+.card.rare .st{color:#fff;text-shadow:1px 1px 0 #000}
+.card.sr{border:4px solid transparent;background:linear-gradient(#fffdf4,#fbe9ff) padding-box,linear-gradient(135deg,#ff4d4d,#ffa500,#f6f13a,#3ddc6a,#3aa0ff,#b04dff,#ff4dd2,#ff4d4d) border-box;background-size:auto,300% 300%;box-shadow:0 0 0 2px #000,0 0 14px 3px #fffc,0 0 24px #b04dff99;animation:rb 1.2s steps(8) infinite;transform:scale(1.06);z-index:2}
+.card.sr .cn{background:#4a1070;color:#fff;text-shadow:1px 1px 0 #000;padding:2px 3px;font-weight:bold}
+.card.sr .ab{background:#fff;border:1px solid #4a1070;padding:1px 2px;width:100%;color:#6a1090}
+.card.sr .st{color:#fff;text-shadow:1px 1px 0 #000;font-size:16px;animation:spk .6s steps(2) infinite}
+.ksr{background:linear-gradient(90deg,#f33,#fa0,#ee3,#3d6,#39f,#a5f,#f33);background-size:200% 100%;animation:rb2 1.2s steps(8) infinite;text-shadow:1px 1px 0 #000;font-size:10px}
+@keyframes sv{to{background-position:0 0,100% 100%}}
+@keyframes rb{to{background-position:0 0,100% 100%}}
+@keyframes rb2{to{background-position:200% 0}}
+@keyframes spk{50%{opacity:.25}}
+.card.sel{transform:translateY(-6px)}.card.sel.sr{transform:translateY(-6px) scale(1.06)}
+.card.sel,.card.sel.rare,.card.sel.sr{box-shadow:0 0 0 3px #f83838,4px 4px 0 3px #000}
+</style></head><body><div id="app"></div>
+<script>
+const SPEC="力:🪵 力強く運ぶ,🪓 勢いよく割る,🛒 ゴロゴロ引く,💪 たくましく支える,⛏️ 黙々と掘る,🏋️ 豪快に担ぐ*;食:🍞 温かく焼く,🍲 じっくり煮る,🍎 みずみずしく分ける,🐟 香ばしく焼く,🥕 新鮮に刻む,🍯 甘く振る舞う*;歌:🎵 軽やかに歌う,🥁 力強く叩く,🎻 しっとり奏でる,📯 高らかに吹く,🎤 楽しく歌う,🪕 華麗に奏でる*;癒:🌿 優しく煎じる,🩹 丁寧に巻く,🛏️ 暖かく包む,🍵 ゆっくり淹れる,🧴 そっと塗る,✨ 清らかに注ぐ*;知:📖 じっくり調べる,🧭 慎重に確かめる,🔍 鋭く見抜く,🗣️ 分かりやすく説く,🧠 賢く練る,🔮 深く悟る*;礼:🙇 深く頭を下げる,🤝 しっかり握る,🙏 心から詫びる,🎩 恭しく脱ぐ,📜 丁寧に述べる,👑 凛と誓う*,📿 静かに祈る*;笑:😄 にこやかに微笑む,🤡 おどけて見せる,💃 楽しく踊る,🎭 面白く真似る,🎈 ふわりと飛ばす,🌈 派手に披露する*;贈:🎁 そっと差し出す,💎 キラキラ磨く,🧶 ふわふわ編む,🕯️ ほのかに灯す,🍪 甘く焼いて贈る,🏅 誇らしく授ける*,🌟 気前よく与える*";
+const SPEC_OLD="力:🪵 丸太,🪓 まきわり,🛒 荷車,💪 力こぶ,⛏️ つるはし,🏋️ 大岩運び*;食:🍞 パン,🍲 シチュー,🍎 りんご,🐟 焼き魚,🥕 野菜,🍯 はちみつ*;歌:🎵 鼻歌,🥁 太鼓,🎻 バイオリン,📯 角笛,🎤 合唱,🪕 ゴブ竪琴*;癒:🌿 薬草,🩹 包帯,🛏️ 毛布,🍵 ハーブ茶,🧴 軟膏,✨ 癒しの泉水*;知:📖 本,🧭 地図,🔍 観察,🗣️ 説明,🧠 作戦,🔮 賢者の知恵*;礼:🙇 お辞儀,🤝 握手,🙏 謝罪,🎩 脱帽,📜 挨拶状,👑 騎士の礼*,📿 お守り*;笑:😄 笑顔,🤡 ひょうきん,💃 ダンス,🎭 物まね,🎈 風船,🌈 虹の一発芸*;贈:🎁 花束,💎 ピカ石,🧶 手編み,🕯️ ろうそく,🍪 クッキー,🏅 ゴブ勲章*,🌟 幸運コイン*";
+const CARDS=[];SPEC.split(";").forEach(s=>{const[t,l]=s.split(":");l.split(",").forEach(x=>{const r=x.endsWith("*");x=x.replace("*","");const[e,n]=x.split(" ");CARDS.push({t,e,n,r})})});
+const CAT={'力':'力','食':'力','癒':'力','礼':'心','贈':'心','笑':'心','知':'知','歌':'知'};
+const CATI={'力':'⚔️','心':'💗','知':'📘'},CATN={'力':'からだ','心':'こころ','知':'ちえ'};
+const LEG=`<div class='lg'><span class='k力'>⚔️ 力＝からだ：力仕事・食べ物・手当て</span><span class='k心'>💗 心＝こころ：礼儀・贈り物・笑い</span><span class='k知'>📘 知＝ちえ：知恵・歌や芸</span></div>`;
+const PL=[{n:"村",i:"🏘️"},{n:"森",i:"🌲"},{n:"川",i:"🏞️"},{n:"海",i:"🌊"},{n:"洞窟",i:"🕳️"}];
+const EV={
+村:[["子供たちが「ゴブリンだー！」と叫んで逃げ出した。怖がらせたくない…","笑","贈"],["おばあさんが重い荷物を抱えて困っている。","力","礼"],["村長が「ゴブリンは信用ならん」と腕組みしている。","礼","知"],["パン屋の店主が空腹で倒れそうだ。","食","癒"],["祭りの準備が間に合っていない。","歌","力"],["掲示板に「ゴブリン討伐」の貼り紙が。村人が不安そうに見ている。","知","笑"]],
+森:[["迷子の子供が泣いている。","笑","癒"],["倒れた丸太が道を塞いで、木こりが困っている。","力","知"],["怪我をした子鹿がうずくまっている。","癒","食"],["森の精霊が不機嫌そうに浮かんでいる。","歌","贈"],["旅人が道に迷っている。","知","礼"],["腹をすかせた熊と鉢合わせた！","食","歌"]],
+川:[["娘が流された洗濯物を追っている。","力","知"],["釣り人が全然釣れず落ち込んでいる。","笑","食"],["橋が壊れて商人が立ち往生している。","力","知"],["河童が「相撲で勝負だ」と挑んできた。","礼","笑"],["川の主ナマズがご機嫌ななめだ。","歌","食"],["水浴び中の旅人とばったり出くわした！","礼","贈"]],
+海:[["漁師の網が絡まって大変なことに。","力","知"],["浜辺で貝を拾う少女が寂しそうにしている。","贈","笑"],["嵐で小舟が難破し、船乗りが倒れている。","癒","力"],["人魚が「忘れた歌を探してるの」と呟いている。","歌","贈"],["灯台守が孤独でふさぎ込んでいる。","笑","食"],["海賊が「金目のものを出せ」と近づいてくる！","礼","知"]],
+洞窟:[["洞窟の奥で眠るドラゴンが寝返りを打った。","歌","癒"],["落盤で冒険者が閉じ込められた！","力","知"],["暗闇で迷った冒険者が震えている。","知","贈"],["コウモリの群れが怯えて騒いでいる。","歌","癒"],["ゴブリンの長老が「お前たちの礼儀を見せてみよ」と言う。","礼","食"],["宝箱を前に、盗賊が仲間割れしている。","知","笑"]]};
+const SPT={村:["贈","食"],森:["癒","歌"],川:["力","笑"],海:["歌","知"],洞窟:["知","力"]};
+const SPR={g:['....hhhh....','...hhhhhh...','..hhhhhhhh..','.hhhhhhhhhh.','ssssssssssss','.ssesssesss.','.ssssssssss.','..sssmmsss..','..ssssssss..','...bbbbbb...','..bbbbbbbb..','.bbbbbbbbbb.'],l:['....rrrr....','...cccccc...','..cccccccc..','..cffffffc..','.hcfeffefch.','.hcffffffch.','.hcfffmffch.','.h.cffffc.h.','..aaaaaaaa..','.aaaaaaaaaa.','aaaaaaaaaaaa','aaaaaaaaaaaa'],s:['....kkkk....','...kkkkkk...','..kwwwwwwk..','..kwffffwk..','..kfeffefk..','..kwffffwk..','..kwfmmfwk..','...kwwwwwk..','..kkkkkkkk..','.kkkkkkkkkk.','.kkkkkkkkkk.','.kkkkkkkkkk.']};
+const gp=(h,s)=>({m:'g',p:{h,s,b:'#6b4a2a',e:'#111',m:'#a33'}});
+const CH={gob:{...gp('#ffd86b','#5fc44a'),o:[[5,1,'#e33'],[6,1,'#e33']]},doc:{...gp('#3a6fd8','#7fcf5a'),o:[[2,5,'#fff'],[4,5,'#fff'],[5,5,'#fff'],[6,5,'#fff'],[8,5,'#fff'],[4,8,'#fff'],[5,8,'#fff'],[6,8,'#fff'],[7,8,'#fff']]},ang:{...gp('#d83a3a','#6fbf4a'),o:[[2,4,'#111'],[3,4,'#111'],[7,4,'#111'],[8,4,'#111']]},hap:{...gp('#f0a020','#7fd44a'),o:[[2,6,'#f99'],[9,6,'#f99']]},slp:{...gp('#8a5ad8','#6fbf4a'),o:[[3,5,'#3d7a2e'],[7,5,'#3d7a2e'],[10,1,'#fff'],[11,1,'#fff'],[11,2,'#fff']]},bas:{...gp('#f08ab0','#8fd46a'),o:[[2,6,'#f66'],[3,6,'#f66'],[8,6,'#f66'],[9,6,'#f66']]},snz:{...gp('#3ab8a0','#6fbf4a'),o:[[5,6,'#e44'],[6,6,'#e44']]},dop:{...gp('#c8d84a','#7fd44a'),o:[[3,5,'#7fd44a'],[4,5,'#111'],[7,5,'#7fd44a'],[6,5,'#111'],[5,0,'#fff'],[6,0,'#fff']]},leia:{m:'l',p:{r:'#d83a3a',c:'#c8d0dc',f:'#f2c9a0',h:'#c0501a',e:'#111',m:'#a33',a:'#8a94aa'}},sis:{m:'s',p:{k:'#222',w:'#fff',f:'#f2c9a0',e:'#111',m:'#c55'},o:[[6,9,'#ffd86b'],[5,10,'#ffd86b'],[6,10,'#ffd86b'],[7,10,'#ffd86b'],[6,11,'#ffd86b']]}};
+function sp(k,z){const c=CH[k],m=SPR[c.m];let r='';m.forEach((row,y)=>{[...row].forEach((ch,x)=>{if(ch!=='.')r+=`<rect x='${x}' y='${y}' width='1' height='1' fill='${c.p[ch]}'/>`})});(c.o||[]).forEach(([x,y,f])=>r+=`<rect x='${x}' y='${y}' width='1' height='1' fill='${f}'/>`);return `<svg viewBox='0 0 12 12' width='${z}' height='${z}' shape-rendering='crispEdges' style='vertical-align:middle;image-rendering:pixelated'>${r}</svg>`}
+const G=[[sp('doc',22),"博士","ふむ、計算通りじゃ！","仮説が間違っておったか…"],[sp('ang',22),"おこりん","やるじゃねえか！","ちっ、何やってんだ！"],[sp('hap',22),"ごきげん","やったー！最高！","まあまあ、次があるよ！"],[sp('slp',22),"ねむ","ふあ…いい感じ…","ぐう…あ、失敗？"],[sp('bas',22),"てれ","ぼ、僕もうれしい…","ご、ごめんなさい…"],[sp('snz',22),"くしゃみ","はっくしょん！大成功！","はっくしょん！ダメだぁ…"],[sp('dop',22),"おとぼけ","えへへ、よくわかんないけどすごい！","あれ？ぼく何かした？"]];
+let S,app=document.getElementById("app");
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=v=>Math.max(0,Math.min(100,v));
+const evalv=()=>{const r=30+(S.score+S.ans)*2.5;if(r>300)S.score-=(r-300)/2.5;else if(r<0)S.score+=-r/2.5;return Math.max(0,Math.min(300,Math.round(30+(S.score+S.ans)*2.5)))};
+const rk=v=>v>=210?"A":v>=135?"B":v>=60?"C":"D";
+const SIS={A:["素晴らしい！神様も微笑んでおられます。この調子ですよ、ゴブ吉さん。","レイア様の心も、きっと動くはずです。"],B:["悪くありませんよ。もうひと押し、善行を積みましょう。","あと少しで善良と認められそうです。"],C:["まだ心許ないですね…。人々の目は厳しいままです。","祈りは届いています。諦めないで。"],D:["このままでは住処が…！どうか善行を！","神よ、どうか彼らにご慈悲を…。"]};
+function oracle(){const v=evalv(),r=rk(v);const o=S._ev==null?v:S._ev,d=v-o;S._ev=v;const dl=d?`<div class='dl ${d>0?'up':'dn'}'>${d>0?'+':''}${d}</div>`:'';setTimeout(()=>{const i=document.querySelector('#orc .gg i');if(i)i.style.width=(v/3)+'%'},40);return `<div id="orc" class="${d>0?'fu':d<0?'fd':''}">${dl}<div class="rk"><span>⛪善良評価</span><b class="r${r}">${r}</b><span><b class='ev'>${v}</b>/300</span><div class="gg"><i style="width:${o/3}%"></i></div></div><div class="cm"><u>🕊️ シスター</u><br>「${rnd(SIS[r])}」</div><div class="pt">${sp('sis',48)}</div></div>`}
+const set=(h,n)=>{app.innerHTML=h.includes('<!--ORC-->')?h.replace('<!--ORC-->',()=>n?'':oracle()):(n?h:oracle()+h);scrollTo(0,0)};
+function draw(n,a=S.hand){for(let k=0;k<n;k++){if(!S.deck.length)S.deck=CARDS.map(c=>c).sort(()=>Math.random()-.5);a.push(S.deck.pop())}}
+function offer(n,k,mid){S.off=[];draw(n,S.off);S.sel=[];S.k=k;S.mid=mid;pickScreen()}
+function pickScreen(){const y=scrollY;set(`${bar()}<div class="scene">⛪</div><div class="win"><div class="who">🕊️ シスター</div>${S.mid?"追加のカードをご用意しました。":S.day+"日目の朝ですね。今日の行動カードをご用意しました。"}${S.off.length}枚の中から、好きなものを<b>${S.k}枚</b>選んでください。（${S.sel.length}/${S.k}）${!S.mid&&S.day==3?"<br><small>最終日です。昨日までの行いが、特別な出来事を呼んでいるようです…</small>":""}</div><div class="hand big">${S.off.map((c,i)=>S.sel.includes(i)?card(c,i,"tog").replace('class="card','class="card sel'):card(c,i,"tog")).join("")}</div><button class="btn" ${S.sel.length<S.k?"disabled":""} onclick="confirmPick()">この${S.k}枚で決定</button>`);scrollTo(0,y)}
+function pickScreen(){const y=scrollY;const tx=S.mid?`<b>シスター</b>「困った時の神頼み、ですか…。カードは差し上げます。ただし、<b>まずは反省</b>からですよ？」<div class='pen'>${S.pen}<br><b>善良評価 -10</b>（神頼みゴブリン認定…）</div>`:`<b>シスター</b>「${S.day}日目の朝です。…今日の行動カードを${S.off.length}枚ご用意いたしました。お選びなさい。」${S.day==3?'<br><small>最終日です。昨日までの行いが特別な出来事を呼んでいるようです…</small>':''}`;set(`${bar()}<div class='chw'><div class='chh'>⛪ 教会</div><div class='dlg'><div class='tx'>${tx}</div><div class='pt'>${sp('sis',76)}</div></div></div><div class='win' style='font-size:13px'>${S.off.length}枚の中から<b>${S.k}枚</b>選んでください（${S.sel.length}/${S.k}）</div>${LEG}<div class='hand big'>${S.off.map((c,i)=>S.sel.includes(i)?card(c,i,'tog').replace('class="card','class="card sel'):card(c,i,'tog')).join('')}</div><button class='btn' ${S.sel.length<S.k?'disabled':''} onclick='confirmPick()'>この${S.k}枚で決定</button>`);scrollTo(0,y)}
+function tog(i){const j=S.sel.indexOf(i);if(j>=0)S.sel.splice(j,1);else if(S.sel.length<S.k)S.sel.push(i);pickScreen()}
+function confirmPick(){S.sel.forEach(i=>S.hand.push(S.off[i]));if(S.mid)map();else if(S.day==3)show(special());else map()}
+const gob=()=>sp('gob',30)+' ';
+function bar(){return `<div class="bar"><span>📅 ${S.day}日目 / 3</span><span>⭐ 善良ポイント ${S.score}</span><span>🃏 ${S.hand.length}</span></div>`}
+const card=(c,i,f)=>{const R=c.r|0,k=CAT[c.t];return `<button class="card ${R==2?'sr':R?'rare':''}" ${f?`onclick="${f}(${i})"`:"disabled"}>${R==2?`<div class="ct ksr">🌈 SUPER RARE</div>`:`<div class="ct k${k}">${CATI[k]}${k}</div>`}<div class="ci">${c.e}</div><div class="cn">${c.n}</div>${R==2?`<div class="ab">${c.a}</div>`:''}${R?`<div class="st">${R==2?'✦':'★'}</div>`:''}</button>`};
+function start(){document.body.classList.remove('sad');S={day:1,hand:[],deck:[],score:0,dp:0,vis:{},used:{},ch:0,days:[],ans:0};
+set(`<h1>⚔️ 女騎士と<br>7人のゴブリン</h1><div class="sub">― 善良ゴブリン証明ADVENTURE ―</div>
+<div class="scene">${sp('leia',100)}${sp('gob',100)}</div>
+<div class="win">「ゴブリンは懲らしめなければならない」――そう信じる女騎士レイアが、3日後に住処へやってくる。<br>ゴブリンのリーダー<b>ゴブ吉</b>として、7人の仲間とともに<b>善良なゴブリン</b>だと証明せよ！<br>証明できなければ、住処は滅せられる…。</div>
+<div class="win" style="font-size:13px"><b>【遊び方】</b><br>・朝、9枚(★1枚確定)から5枚を選ぶ<br>・朝/昼/夕に行き先を選びイベントへ<br>・合うカードを出して善良評価UP<br>・カードは<b>力・心・知</b>の3系統<br>・使ったカードは消える<br>・連続正解でCOMBO倍率UP(最大10)<br>・カード1枚を捨てるとヒントが聞ける<br>・村以外では戦闘も起きる<br><br><b>【レア度】</b><br>・★レア：銀枠・効果大<br>・🌈SR：虹枠・特別な能力<br><br><b>【ゴール】</b><br>3日後の善良評価(最大300)でランクが決まる。<br>女騎士の問いに答え、仲間を守りきれ！</div>
+<button class="btn" onclick="dayStart()">ゲームスタート</button>`,1)}
+function dayStart(){S.hand=[];S.ch=0;S.dp=0;offer(10,5,0)}
+function _oldDayStart(){S.hand=[];draw(5);S.ch=0;S.dp=0;
+set(`${bar()}<div class="scene">⛪</div><div class="win"><div class="who">${gob()}ゴブ吉</div>${S.day}日目の朝。教会でシスターから行動カードを5枚もらった。<br>${S.day==3?"今日はいよいよ最終日。昨日までの行いが、特別な出来事を呼んでいるようだ…":"さあ、善行を積みに出かけよう！"}</div><div class="hand">${S.hand.map(c=>card(c)).join("")}</div><button class="btn" onclick="${S.day==3?"show(special())":"map()"}">出発する</button>`)}
+function map(){set(`${bar()}<div class="win"><div class="who">${gob()}ゴブ吉</div>どこへ行く？ 手札：${S.hand.length}枚</div>
+<div class="grid">${PL.map(p=>`<button class="btn alt" onclick="go('${p.n}')">${p.i} ${p.n}</button>`).join("")}</div>
+<button class="btn alt" ${S.ch?"disabled":""} onclick="church()">⛪ 教会へ神頼み（1日1回・善良評価ダウン）</button>
+<div class="hand">${S.hand.map(c=>card(c)).join("")}</div>`)}
+const PEN=['長い長いお説教を、正座で聞かされた…足がしびれる！','教会の床を雑巾がけさせられた。ぴかぴかだが膝が痛い…','「反省の祈り」を100回唱えさせられた。','頭から聖水をかぶって「心の汚れ」を落とされた。びしょぬれだ…','懺悔の鐘を鳴らし続けさせられた。耳がキーンとする…'];
+function church(){app.insertAdjacentHTML('beforeend',`<div class='ov' id='wv'><div class='chw' style='margin:16px;max-width:420px'><div class='chh'>⚠️ 警告</div><div class='dlg'><div class='tx'>困った時の神頼みは、<b>「情けないゴブリン」</b>と見なされます。<br>教会へ行くと<b>善良評価が-10</b>されます。<br>それでも行きますか？</div><div class='pt'>${sp('sis',64)}</div></div><div class='grid' style='margin-top:10px'><button class='btn alt' onclick="document.getElementById('wv').remove()">やめる</button><button class='btn' onclick="document.getElementById('wv').remove();goChurch()">行く…</button></div></div></div>`)}
+function goChurch(){S.ch=1;S.score-=4;S.dp-=4;S.pen=rnd(PEN);offer(4,2,1)}
+function go(n){let l=EV[n].filter((e,i)=>!S.used[n+i]);if(!l.length){S.used={};l=EV[n]}const e=rnd(l);S.used[n+EV[n].indexOf(e)]=1;show({p:n,i:PL.find(p=>p.n==n).i,t:e[0],b:e[1],o:e[2],x:1})}
+function special(){let b=null,m=-1;for(const k in S.vis){const v=S.vis[k];const sc=v.n*100+v.p;if(sc>m){m=sc;b=k}}if(!b)b=rnd(PL).n;const v=S.vis[b]||{p:0},pos=v.p>0,i=PL.find(p=>p.n==b).i;
+return {p:b,i,sp:1,x:2,b:pos?SPT[b][0]:"礼",o:pos?SPT[b][1]:"笑",t:pos?`【特別イベント・ポイント2倍】${b}の住人たちが君を訪ねてきた。「先日の恩は忘れていない。だが、ひとつ頼みがある…」`:`【特別イベント・ポイント2倍】${b}の住人たちが怒って押しかけてきた。「あの時のことは許さんぞ！」`}}
+function show(e){S.ev=e;const g=rnd(G);
+set(`${bar()}<div class="scene">${e.i}</div><div class="win"><div class="who">${e.p}${e.sp?" ✨":""}</div>${e.t}<br><small>${g[0]} ${g[1]}「ゴブ吉、どうする？」</small></div><div class="win" style="font-size:13px">使うカードを選べ！（使ったカードは消える）</div><div class="hand big">${S.hand.map((c,i)=>card(c,i,"pick")).join("")}</div>`)}
+function pick(i){const c=S.hand.splice(i,1)[0],e=S.ev;const g=e.m?(c.t==e.b?2:0):c.t==e.b?2:(c.t==e.o||CAT[c.t]==CAT[e.b]||CAT[c.t]==CAT[e.o]||c.r)?1:0;const pts=e.m?(g?8:-6):[-1,1,3][g]*e.x;S.score+=pts;S.dp+=pts;if(!S.dv)S.dv={};S.dv[e.p]=(S.dv[e.p]||0)+pts;
+const v=e.m?{n:0,p:0}:(S.vis[e.p]||(S.vis[e.p]={n:0,p:0}));if(!e.sp&&!e.m){v.n++;v.p+=pts}
+const oo=document.getElementById("orc");if(oo)oo.outerHTML=oracle();
+let bonus="";if(g==2){draw(1);bonus="<br>🃏 カードを1枚補充した！"}
+const q=rnd(G);const line=g?q[2]:q[3];
+const big=g==2?`<div class="good">GOOD!!<br>大正解！</div>`:g==1?`<div class="good" style="font-size:40px">正解！</div>`:`<div class="ng">ハズレ…</div>`;
+app.insertAdjacentHTML("beforeend",`<div class="ov" onclick="this.remove();after()"><div style="text-align:center">${big}<div class="win" style="margin:14px">${c.e} ${c.n} <div class="dnum ${pts>0?'up':'dn'}">善良評価 ${pts>0?'+':''}${Math.round(pts*2.5)}</div>${bonus}<br>${q[0]} ${q[1]}「${line}」${g<2?`<br><small>ヒント：${CATI[CAT[e.b]]}「${CAT[e.b]}」系（特に${e.b}）が最適だった</small>`:""}</div><small>タップで次へ</small></div></div>`)}
+function after(){if(!S.hand.length)dayEnd();else map()}
+function dayEnd(){const p=S.dp,r=p>=6?["🌞","いい日だった","村の噂になっているようだ。"]:p>=2?["⛅","普通の日だった","可もなく不可もなく、といったところ。"]:["🌧️","悪い日だった","ゴブリンへの視線が冷たい…。"];S.days.push(r[1]);
+set(`${bar()}<div class="scene">${r[0]}</div><div class="win"><div class="who">${S.day}日目の結果</div><b style="font-size:20px">${r[1]}</b><br>${r[2]}<br><small>（今日の善良ポイント ${p>0?"+":""}${p}）</small></div><button class="btn" onclick="next()">${S.day<3?"夜が明けて…":"そして、女騎士がやってくる…"}</button>`)}
+const GC=[['🕊️','正直に打ち明ける',[4,3,2]],['🙏','誠実に詫びる',[2,4,1]],['🛡️','堂々と答える',[3,0,3]],['👂','静かに耳を傾ける',[1,4,2]],['🤝','まっすぐ誓う',[2,1,4]],['💎','惜しみなく差し出す',[0,2,4]],['😤','威勢よく吠える',[-2,-2,-1]],['😏','ふてぶてしく笑う',[-1,-1,0]],['🌸','穏やかに語りかける',[3,3,1]],['🧠','冷静に説き伏せる',[2,1,3]]];
+function gcard(c,n,i){return `<button class='card gold' ${n?`onclick='gsel(${n},${i})'`:'disabled'}><div class='ct kg'>⚜️切り札</div><div class='ci'>${c[0]}</div><div class='cn'>${c[1]}</div><div class='st'>★</div></button>`}
+function gsel(n,i){const c=S.gc.splice(i,1)[0],s=c[2][n-1];S.ans+=s;const R=s>=4?'…っ。そのような答えが返ってくるとは…思わなかった':s==3?'……。嘘では、なさそうだな':s==2?'ふむ…悪くない答えだ':s==1?'…そうか。まだ信用はできんがな':s==0?'…それだけか？何も響かんぞ':'ふざけるな！剣の錯になりたいか！';const d=Math.round(s*2.5);set(`<div class='scene'>${sp('leia',110)}</div><div class='win'><div class='who'>${gob()}ゴブ吉</div>${c[0]} ${c[1]}</div><div class='win'><div class='who'>女騎士レイア</div>「${R}」<div class='dnum ${d>0?'up':d<0?'dn':''}'>善良評価 ${d>0?'+':''}${d}</div></div><button class='btn' onclick='leia(${n+1})'>${n<3?'次の質問へ':'…'}</button>`)}
+const PH=['朝','昼','晩','夜'],PI=['🌅','☀️','🌆','🌙'];
+function dayStart(){S.hand=[];S.ch=0;S.dp=0;S.ph=0;S.act=0;S.dv={};offer(10,6,0)}
+function bar(){return `<div class='bar'><span>📅 ${S.day}日目 ${PI[S.ph]}${PH[S.ph]}</span><span>⭐ 善良ポイント ${S.score}</span><span>🃏 ${S.hand.length}</span></div>`}
+function map(){set(`${bar()}<div class='scene'>${PI[S.ph]}</div><div class='win'><div class='who'>${gob()}ゴブ吉</div>${PH[S.ph]}のフェイズ（${S.act+1}回目／2）。どこへ行く？ 手札：${S.hand.length}枚</div><div class='grid'>${PL.map(p=>`<button class='btn alt' onclick='go("${p.n}")'>${p.i} ${p.n}</button>`).join('')}</div><button class='btn alt' ${S.ch?'disabled':''} onclick='church()'>⛪ 教会へ神頼み（1日1回・善良評価ダウン）</button><div class='hand'>${S.hand.map(c=>card(c)).join('')}</div>`)}
+function after(){S.act++;if(!S.hand.length||(S.act>=2&&S.ph>=2))night();else if(S.act>=2){S.ph++;S.act=0;map()}else map()}
+function night(){S.ph=3;const d=Object.entries(S.dv||{}).sort((a,b)=>b[1]-a[1]);const b=d[0],w=d[d.length-1];const p=S.dp;const r=p>=6?['🌞','いい日だった','この調子で、明日も善行を積みなさい。']:p>=2?['⛅','普通の日だった','悪くはありません。ですが、まだ足りませんね。']:['🌧️','悪い日だった','このままでは…。明日は心を入れ替えなさい。'];S.days.push(r[1]);const left=S.hand.length?`<br><small>余った手札${S.hand.length}枚は教会に返した。</small>`:'';S.hand=[];const sm=(b&&b[1]>0?`${b[0]}での行いが最も評価できました。`:'')+(w&&w[1]<0?`${w[0]}では少々残念でしたね。`:'');
+set(`${bar()}<div class='chw'><div class='chh'>🌙 おやすみフェイズ</div><div class='dlg'><div class='tx'><b>シスター</b>「${S.day}日目の総括です。${sm}${r[2]}」<div class='pen'>${r[0]} <b>${r[1]}</b>（今日の善良ポイント ${p>0?'+':''}${p}）${left}</div></div><div class='pt'>${sp('sis',76)}</div></div></div><button class='btn' onclick='next()'>${S.day<3?'おやすみなさい…':'そして3日が過ぎた…'}</button>`)}
+function next(){if(S.day<3){S.day++;dayStart()}else leia(0)}
+const Q=[["「ゴブリンは人を襲う悪しき種族。違うか？」",[["そう思われても仕方ない。でも俺たちは変わりたい",4],["違う！お前の方が間違ってる！",-2],["人にもゴブリンにも、悪い奴と良い奴がいる",1]]],
+["「私がなぜゴブリンを憎むか、わかるか？」",[["知らん",-2],["教えてくれ。ちゃんと聞かせてほしい",3],["故郷を襲われたんだろう…すまなかった",4]]],
+["「その言葉に偽りがないと、どう証明する？」",[["勝負だ！",-1],["この3日間の俺たちを見てくれ",2],["仲間を信じてほしい。俺が人質になってもいい",3]]]];
+function leia(n){if(n==0)set(`<div class="scene">${sp('leia',110)}</div><div class="win"><div class="who">女騎士レイア</div>「ここが、ゴブリンの住処か。…覚悟はできているな？」<br><small>3日間の善良ポイント：${S.score}　（${S.days.join("／")}）</small></div><div class="win">レイアは3つの質問を投げかけてきた。答え次第で、運命が変わる！</div><button class="btn" onclick="leia(1)">質問を受ける</button>`);
+else if(n<=3){const q=Q[n-1];set(`<div class="scene">${sp('leia',110)}</div><div class="win"><div class="who">女騎士レイア（質問${n}/3）</div>${q[0]}</div>${q[1].map((o,i)=>`<button class="btn alt opt" onclick="ans(${n},${o[1]})">${o[0]}</button>`).join("")}`)}
+else{const t=evalv();const e=t>=90?["👑","完全和解エンド","レイアは剣を収め、涙をこらえて微笑んだ。「…ゴブリンとは、こんなにあたたかいのだな」。彼女は住処の7人目の友となった。"]:t>=70?["🤝","和解エンド","「…今日のところは剣を収めよう。だが、これからも見ているぞ」。住処は守られた！"]:t>=45?["⏳","保留エンド","「判断はまだできぬ。一週間後、もう一度来る」。住処は首の皮一枚で繋がった…。"]:["🔥","滅亡エンド","「やはりゴブリンはゴブリンだ」。レイアの剣が閃き、住処は滅せられた…。"];
+set(`<div class="scene">${e[0]}</div><div class="win"><div class="who">${e[1]}</div>${e[2]}</div><div class="win">3日間のポイント：${S.score}<br>対決の得点：${S.ans>0?"+":""}${S.ans}<br><b>最終善良評価：${t}／100（ランク${rk(t)}）</b></div><button class="btn" onclick="start()">もう一度あそぶ</button>`)}}
+function leia(n){if(n==0)S.gc=gDeal();if(n==0)set(`<div class='scene'>${sp('leia',110)}</div><div class='win'><div class='who'>女騎士レイア</div>「ここが、ゴブリンの住処か。…覚悟はできているな？」<br><small>3日間の記録：${S.days.join('／')}</small></div><div class='win'>レイアが剣に手をかけた。ここからは<b>言葉の対決</b>だ！<br>仲間たちが用意した<b>切り札10枚</b>から、<b>3回</b>答えよ。外せば仲間の命は危うい…。</div><div class='hand'>${S.gc.map(c=>gcard(c)).join('')}</div><button class='btn' onclick='lStart()'>対決する</button>`);
+else if(n<=3){const q=Q[n-1];set(`<div class='scene'>${sp('leia',110)}</div><div class='win'><div class='who'>女騎士レイア（質問${n}/3）</div>${q[0]}</div><div class='win' style='font-size:13px'>金枠の切り札から1枚選べ！（残り${S.gc.length}枚）</div><div class='hand big'>${S.gc.map((c,i)=>gcard(c,n,i)).join('')}</div>`)}
+else if(n==4)set(`<div class='scene'>${sp('leia',110)}</div><div class='win'><div class='who'>女騎士レイア</div>「…質問は以上だ」<br>レイアは静かに兜に手をかけた。<br>外された兜の下から現れたのは、見慣れた顔だった。</div><button class='btn' onclick='leia(5)'>兜の下を見る</button>`);
+else if(n==5)set(`<div class='scene'>${sp('sis',110)}</div><div class='chw'><div class='chh'>⛪ 正体</div><div class='dlg'><div class='tx'><b>シスター</b>「驚いた？ 女騎士レイアは、私のもうひとつの顔。教会のお告げで、あなたたちの行いをずっと見ていたの」</div><div class='pt'>${sp('sis',76)}</div></div></div><button class='btn' onclick='finalR()'>最終判定を聞く</button>`);
+else{const t=evalv();const e=t>=90?['👑','完全和解エンド','シスターは剣を地に突き、微笑んだ。「あなたたちは本当に善良なゴブリンだった。…これからも、教会へいらっしゃい」']:t>=70?['🤝','和解エンド','「今日のところは剣を収めます。けれど、これからも見ていますからね」住処は守られた！']:t>=45?['⏳','保留エンド','「判断は一週間後に。またお告げを授けに来ます」住処は首の皮一枚で繋がった…。']:['🔥','滅亡エンド','「…神は、ゴブリンをお赦しにならなかった」シスターの剣が閃き、住処は滅せられた…。'];
+set(`<div class='scene'>${sp('sis',110)}<span style='font-size:48px'>${e[0]}</span></div><div class='win'><div class='who'>${e[1]}</div>${e[2]}</div><div class='win'>3日間のポイント：${S.score}<br>対決の得点：${S.ans>0?'+':''}${S.ans}<br><b>最終善良評価：${t}／100（ランク${rk(t)}）</b></div><button class='btn' onclick='start()'>もう一度あそぶ</button>`)}}
+function dayStart(){S.hand=[];S.ch=0;S.dp=0;S.ph=0;S.dv={};offer(10,5,0)}
+function bar(){return `<div class='bar'><div class='ph'>${[0,1,2,3].map(i=>`<span class='${i==S.ph?'on':''}'>${PI[i]}${PH[i]}</span>`).join('')}</div><div class='st'><span>📅 ${S.day}日目／3</span><span>⭐ 善良ポイント ${S.score}</span><span>🃏 ${S.hand.length}枚</span></div></div>`}
+const MP={'村':[20,20],'森':[80,20],'川':[85,58],'海':[62,86],'洞窟':[16,72]};
+function map(){const ln=Object.values(MP).map(([x,y])=>`<line x1='50' y1='48' x2='${x}' y2='${y}' stroke='#ffd86b' stroke-width='1.5' stroke-dasharray='4 3' vector-effect='non-scaling-stroke' opacity='.7'/>`).join('');const nd=PL.map(p=>`<button class='nd' style='left:${MP[p.n][0]}%;top:${MP[p.n][1]}%' onclick='go("${p.n}")'><i>${p.i}</i>${p.n}</button>`).join('');set(`${bar()}<div class='win'><div class='who'>${gob()}ゴブ吉</div>${PH[S.ph]}のターン。どこへ向かう？（行動は1ターン1回）</div><div class='mapv'><svg viewBox='0 0 100 100' preserveAspectRatio='none'>${ln}</svg>${nd}${mysNode()}<button class='nd ch' ${S.ch?'disabled':''} style='left:50%;top:48%' onclick='church()'><i>⛪</i>教会<small>神頼み(-10)</small></button></div><div class='hand'>${S.hand.map(c=>card(c)).join('')}</div>${cmbBar()}`)}
+const EV2={村:[['村長が感謝の宴に招いてくれた','パン屋が焼きたてを山ほどくれた','子供たちが「ゴブリン先生」と慕ってきた','鍛冶屋が新しい道具を譲ってくれた','老婆が「うちの孫の婿に」と言い出した','村の楽団が君たちの歌を演奏したいと言う','商人が特別な値引きを申し出た','村人が収穫祭に招待してくれた','旅芸人が一緒に舞台に立たないかと誘ってきた','領主の使いが表彰状を持ってきた'],['酔っぱらいが「ゴブリンだ！」と騒ぎ出した','見張りが槍を向けて近づいてきた','井戸に毒を入れたと噂が流れた','財布が盗まれ、君たちが疑われた','悪徳商人が怪しい取引を持ちかけてきた','犬に追われて屋台をひっくり返しそうだ','祭りで勝手に踊ったと苦情が来た','自警団が「見回り」と称して尾行してくる','村長の大事な壺が割れていた。犯人は…','吟遊詩人が悪いゴブリンの歌を広めている']],森:[['森の精霊が祝福を授けようとしている','木こりが丸太小屋を貸してくれた','迷子の親が涙ながらに感謝してきた','梟が秘密の薬草の場所を教えてくれた','森番が通行許可証を発行してくれた','狩人が獲物を分けてくれた','妖精たちが花の冠を作ってくれた','薬師が弟子入りを勧めてきた','森の主の鹿が背に乗れと促している','木漏れ日の中、女神像が輝いている'],['熊が縄張りに入ったと怒っている','罠にかかった狩人が君たちを疑っている','精霊が木を折ったと怒っている','毒キノコを食べた仲間が泡を吹いた','霧で迷い、日が暮れそうだ','盗賊団が「通行料」を要求してきた','蜂の巣を落とし、大群が迫る','魔女が「呪いのスープ」を勧めてくる','狼の群れに囲まれた','木こりの斧が荷物に紛れ込んでいた']],川:[['河童が友情の印にキュウリをくれた','漁師が大物を分けてくれた','橋の工事人が感謝の印を渡してきた','川の主ナマズが願いを聞いてくれそうだ','洗濯娘たちが歌でもてなしてくれた','筏乗りが無料で乗せてくれると言う','商人が珍品を安く譲ってくれる','水の精霊が澄んだ水を授けてくれた','子供たちが石投げ大会に誘ってくれた','釣り名人が秘伝の仕掛けを教えてくれる'],['増水で橋が流されそうだ','河童が「相撲で負けたら尻子玉をもらう」と言う','滑って商人の荷を川に流してしまった','川下の村から「水が濁った」と抗議が来た','洗濯物を盗んだと疑われた','大ナマズが暴れ、波が襲ってくる','渡し守が法外な料金を要求してきた','釣り針が服に引っかかり大騒動に','川霧の中から亡霊の船が現れた','上流の堰が壊れ、濁流が迫る']],海:[['漁師たちが宴に招いてくれた','人魚が真珠を一粒くれた','灯台守がお守りをくれた','難破船の船長が財宝を差し出した','海の神官が祝福の儀を行ってくれた','貝殻売りの少女が一番の貝をくれた','クジラが現れ、背に乗せてくれた','大漁の分け前を勧められた','潮干狩り大会で優勝を勧められた','船乗りたちが「海の友」と認めてくれた'],['高波にさらわれそうになった','海賊が「仲間になれ」と迫ってくる','クラゲの大群が浜辺を襲っている','漁師の舟に勝手に乗ったと誤解された','人魚の歌に仲間が魅了され海へ向かう','嵐の予兆に漁師たちが苛立っている','灯台の火が消え、船が座礁しそうだ','カニに挟まれて大騒ぎになった','大蛸が船に絡みついた','海の神の怒りが近づいている']],洞窟:[['長老ゴブリンが秘宝の場所を教えてくれた','奥で光る泉を見つけた','閉じ込められていた冒険者が謝礼をくれた','コウモリたちが道案内をしてくれる','眠れる竜が寝言で祝福をくれた','鉱夫が珍しい鉱石を譲ってくれた','壁画に「善き者」の予言が描かれていた','洞窟の精が願いを一つ叶えてくれる','迷子のゴブリン少年を助け、里が祝宴を開いた','洞窟の主が握手を求めてきた'],['落盤で出口が塞がれそうだ','盗賊が宝の山分けを強要してくる','眠れる竜が目を覚ましかけている','毒ガスが充満してきた','罠の床が開き、仲間が落ちかけている','幽霊が「帰れ」と泣き叫ぶ','巨大グモの巣に引っかかった','暗闇で仲間がはぐれてしまった','長老が「ゴブリンの恥」と叱ってきた','奥から不気味な唸り声が響いてくる']]};
+const MYS=[['謎の老商人「この壺を割らずに運べるか」','力'],['霧の祀が「供物を捧げよ」と囁く','贈'],['眠る巨人が寝返りを打つ…静かにさせねば','歌'],['迷宮の門番が謎かけをしてきた','知'],['飢えた幽霊が「食べ物を…」とすがる','食'],['王家の使者が「作法を見せよ」と迫る','礼'],['泣く妖精を笑わせねば道が開かない','笑'],['傷ついた竜の子が震えている','癒'],['崩れかけた石橋を支えねばならない','力'],['仮面の吟遊詩人が「共に奏でよ」と誘う','歌'],['古の賢者が「真理を述べよ」と問う','知'],['嫉妬深い魔女が「素敵な贈り物を」と要求する','贈'],['腹ペコの巨大猛が突進してくる','食'],['気難しい貴婦人が挨拶を待っている','礼'],['無表情の石像が笑顔を求めている','笑'],['瘀死の旅人が手当てを求めている','癒'],['銹びた大扉が力でしか開かない','力'],['沈黙の湖の主が歌を求めている','歌'],['星読みの老人が「星図を読み解け」と言う','知'],['嵐の精霊が捧げ物を待っている','贈'],['山のような料理人が「味見せよ」と迫る','食'],['王の幽霊に正式な謝罪を','礼'],['退屈した魔王の使いが芸を求めている','笑'],['呪いで眠る少女を目覚めさせたい','癒'],['暴れ馬車を止めねば村が潰れる','力'],['妖精の輪の中で歌わねば出られない','歌'],['迷子の亡霊が帰り道を問うてくる','知'],['孤独な山の主へ心を込めた品を','贈'],['空腹の旅の騎士に食事を振る舞いたい','食'],['無言の神官が礼を尽くすよう促す','礼']];
+function mysNode(){if(S.mk!==S.day*10+S.ph){S.mk=S.day*10+S.ph;S.mys=Math.random()<.18}return S.mys?`<button class='nd mys' style='left:38%;top:12%' onclick='gom()'><i>❓</i>？？？<small>…何かいる</small></button>`:''}
+function gom(){S.mu=S.mu||{};let l=MYS.map((e,i)=>i).filter(i=>!S.mu[i]);if(!l.length){S.mu={};l=MYS.map((e,i)=>i)}const i=rnd(l);S.mu[i]=1;const e=MYS[i];show({p:'？？？',i:'❓',t:'【？？？・正解は1つだけ！】'+e[0],b:e[1],o:e[1],x:1,m:1})}
+function rev(){S.ph=3;const p=S.dp;const good=Math.random()<(p>=6?.65:p>=2?.5:.3);const ks=Object.keys(S.dv||{}).filter(k=>EV2[k]);const pl=ks.length?rnd(ks):rnd(PL).n;const e=rnd(EV2[pl][good?0:1]);S.re={good};set(`${bar()}<div class='scene'>${PL.find(x=>x.n==pl).i}</div><div class='win'><div class='who'>🌙 夜のできごと（${pl}）</div>${pl}での今日の行いが、思わぬ出来事を招いた。<br><b>${e}</b></div><div class='chw'><div class='dlg'><div class='tx'><b>シスター</b>「${good?'…好機、かもしれません。ただし、油断なさらぬよう。':'…厄介ごとのようですね。対処はお任せいたします。'}」</div><div class='pt'>${sp('sis',56)}</div></div></div><button class='btn' onclick='rv(1)'>${good?'ありがたく受ける（成否で大きく上下）':'立ち向かう（成否で大きく上下）'}</button><button class='btn alt' onclick='rv(0)'>${good?'謙虚に辞退する（安全・小さく＋）':'うまく回避する（安全・小さく－）'}</button>`)}
+function rv(a){const g=S.re.good;let pts,msg;if(a){const ok=Math.random()<Math.max(.25,Math.min(.8,.45+S.dp*.04));pts=g?(ok?8:-5):(ok?7:-8);msg=ok?'大成功！':'裏目に出た…'}else{pts=g?2:-1;msg=g?'堅実な判断だった。':'うまく切り抜けた。'}S.score+=pts;S.dp+=pts;const d=Math.round(pts*2.5);set(`${bar()}<div class='win'><div class='who'>結果</div><b style='font-size:20px'>${msg}</b><br><div class='dnum ${d>0?'up':'dn'}'>善良評価 ${d>0?'+':''}${d}</div></div><button class='btn' onclick='night()'>夜が更ける…</button>`)}
+function after(){S.ph++;if(S.ph>=3||!S.hand.length)rev();else map()}
+function show(e){S.ev=e;const g=rnd(G);const tg0=Math.random()<.7?e.b:e.o,tg=CATI[CAT[tg0]]+CAT[tg0]+'（'+CATN[CAT[tg0]]+'）';const L=[`${tg}に通じるものが良いでしょう。…ええ、あくまで参考までに。`,`${tg}系のカードをお勧めいたします。期待はしておりませんが。`,`私の見立てでは${tg}かと。外れても責任は負いかねます。`,`${tg}がよろしいかと存じます。…あなたに務まるかは存じませんが。`];set(`${bar()}<div class='scene'>${e.i}</div><div class='win ev${e.rar||0}'><div class='who'>${e.rar==2?'🌈スーパーレアイベント｜':e.rar==1?'★レアイベント｜':''}${e.p}${e.sp?' ✨':''}</div>${e.t}<br><small>${g[0]} ${g[1]}「ゴブ吉、どうする？」</small></div><div class='chw'><div class='dlg'><div class='tx'><b>シスター</b>「${rnd(L)}」<br><small>——シスターのおすすめ</small></div><div class='pt'>${sp('sis',56)}</div></div></div><div class='win' style='font-size:13px'>使うカードを選べ！（使ったカードは消える）<br>系統が合えば正解、ぴったりなら大正解！</div>${LEG}<div class='hand big'>${S.hand.map((c,i)=>card(c,i,'pick')).join('')}</div>`)}
+function ans(n,p){S.ans+=p;leia(n+1)}
+
+/* ===== v2: ヒント課金 / コンボ / 上部お告げ / 戦闘 ===== */
+const fmt=v=>Math.round(v*10)/10;
+const mm=c=>c<=0?1:c==1?1.2:Math.min(2.3,Math.round((1.5+(c-2)*.1)*10)/10);const cmM=()=>mm(S.combo|0);
+function bar(){const c=S.combo|0;return `<div class='bar'><div class='ph'>${[0,1,2,3].map(i=>`<span class='${i==S.ph?'on':''}'>${PI[i]}${PH[i]}</span>`).join('')}</div><div class='st'><span>📅 ${S.day}日目／3</span><span>⭐ ${fmt(S.score)}</span><span>🃏 ${S.hand.length}枚</span></div></div><!--ORC-->`}
+function dayStart(){S.hand=[];S.ch=0;S.dp=0;S.ph=0;S.dv={};S.combo=0;offer(10,5,0)}
+const FOE={森:{n:[['💧','スライム'],['🍄','おばけキノコ'],['🐛','大イモムシ'],['🦇','ドラキー']],s:[['🐻','森の主グマ'],['🌳','古木の怪人']]},川:{n:[['💧','スライム'],['🦀','おおガニ'],['🐸','カエル戦士'],['🐟','ピラニア']],s:[['🐊','大ワニ'],['🐍','川の大蛇']]},海:{n:[['🐚','ヤドカリン'],['🦑','イカスミン'],['💧','スライム'],['🦀','ベビークラブ']],s:[['🦈','人喰いザメ'],['🐙','大ダコ王']]},洞窟:{n:[['💧','スライム'],['🦇','ドラキー'],['🕷️','こグモ'],['💀','ガイコツ兵']],s:[['🐲','洞窟のドラゴン'],['👹','オーガ']]}};
+const BATK=3,BCOST=2;
+function go(n){if(n!=='村'&&Math.random()<.25)return bStart(n);let l=EV[n].filter((e,i)=>!S.used[n+i]);if(!l.length){S.used={};l=EV[n]}const e=rnd(l);S.used[n+EV[n].indexOf(e)]=1;show({p:n,i:PL.find(p=>p.n==n).i,t:e[0],b:e[1],o:e[2],x:1})}
+function bStart(n){const st=Math.random()<.18,a=rnd(st?FOE[n].s:FOE[n].n),h=st?5:2;S.b={p:n,i:PL.find(p=>p.n==n).i,e:a[0],nm:a[1],st,w:rnd(['力','心','知']),max:h,hp:h,atk:0,log:''};bScreen()}
+function bScreen(){const y=scrollY,b=S.b;set(`${bar()}<div class='scene bt${b.st?' boss':''}'><span class='foe'>${b.e}</span></div><div class='win'><div class='who'>${b.st?'⚠️ 強敵出現！':'⚔️ 戦闘！'}（${b.i} ${b.p}）</div>${b.nm}が現れた！<br>弱点：${CATI[b.w]}<b>${b.w}</b>（${CATN[b.w]}）系<div class='hpw'><span>HP</span><div class='hpb'><i style='width:${b.hp/b.max*100}%'></i></div><span>${b.hp}/${b.max}</span></div>${b.log?`<div class='pen'>${b.log}</div>`:''}</div><div class='win' style='font-size:13px'>${S.hand.length?'カードで戦え！弱点の系統なら大ダメージ、★レアは+1。':'手札が尽きた…！'}${b.st?'<br>とても強い相手だ。長期戦になるかも…':''}</div><div class='hand big'>${S.hand.map((c,i)=>card(c,i,'bHit')).join('')}</div>${cmbBar()}<button class='btn alt' onclick='bAtk()'>⚔️ 攻撃する（カード不使用／善良評価 -${Math.round(BCOST*2.5)}／乱暴なゴブリンと見なされる）</button><button class='btn alt' onclick='bFlee()'>🏃 逃げる（コンボが途切れる）</button>`);scrollTo(0,y)}
+function bHit(i){const b=S.b,c=S.hand.splice(i,1)[0],hit=CAT[c.t]==b.w,d=(hit?2:1)+(c.r?1:0);b.hp=Math.max(0,b.hp-d);b.log=`${c.e} ${c.n}！ ${hit?'弱点を突いた！':'効いているようだ…'} ${d}ダメージ`;b.hp?bScreen():bWin()}
+function bAtk(){const b=S.b;b.atk++;b.hp=Math.max(0,b.hp-BATK);S.combo=0;S.score=fmt(S.score-BCOST);S.dp=fmt(S.dp-BCOST);S.dv[b.p]=fmt((S.dv[b.p]||0)-BCOST);b.log=`⚔️ 剣で殴りつけた！${BATK}ダメージ…（乱暴なゴブリンだと思われた）`;b.hp?bScreen():bWin()}
+function bWin(){const b=S.b;let pts=0,msg='力ずくで倒した。…だが、乱暴なゴブリンという印象が残ってしまった。',bonus='';if(!b.atk){pts=fmt((b.st?6:1.5)*cmM());S.combo=Math.min(10,(S.combo|0)+1);msg='カードを活かして見事に勝利した！';if(b.st){draw(1);bonus='<br>🃏 戦利品のカードを1枚手に入れた！'}}
+S.score=fmt(S.score+pts);S.dp=fmt(S.dp+pts);S.dv[b.p]=fmt((S.dv[b.p]||0)+pts);const cost=b.atk*Math.round(BCOST*2.5);
+set(`${bar()}<div class='scene'><span class='foe' style='font-size:64px'>💥</span></div><div class='win'><div class='who'>🏆 勝利！</div>${b.nm}を倒した！<br>${msg}${pts?`<div class='dnum up'>善良評価 +${Math.round(pts*2.5)}</div><div class='cmb'>🔥 COMBO ${S.combo}！次は ×${cmM()}</div>`:''}${cost?`<div class='pen'>攻撃コスト 善良評価 -${cost}（反映済み）</div>`:''}${bonus}</div><button class='btn' onclick='after()'>次へ</button>`)}
+function bFlee(){S.combo=0;set(`${bar()}<div class='scene'><span class='foe'>💨</span></div><div class='win'><div class='who'>逃走</div>${S.b.nm}から うまく逃げ切った…。<br><small>報酬はなし。コンボが途切れた。</small></div><button class='btn' onclick='after()'>次へ</button>`)}
+function show(e){S.ev=e;S.eg=rnd(G);S.ht=Math.random()<.7?e.b:e.o;S.hint='';S.hm=0;S.hd=-1;evScreen()}
+function hintLine(){const t=S.ht,tg=CATI[CAT[t]]+CAT[t]+'（'+CATN[CAT[t]]+'）';return rnd([`${tg}に通じるものが良いでしょう。…ええ、あくまで参考までに。`,`${tg}系のカードをお勧めいたします。期待はしておりませんが。`,`私の見立てでは${tg}かと。外れても責任は負いかねます。`,`${tg}がよろしいかと存じます。…あなたに務まるかは存じませんが。`])}
+function evScreen(){const y=scrollY,e=S.ev,g=S.eg,m=S.hm;const hw=S.hint?`<div class='chw'><div class='dlg'><div class='tx'><b>シスター</b>「${S.hint}」<br><small>——シスターのおすすめ</small></div><div class='pt'>${sp('sis',56)}</div></div></div>`:'';
+const ctrl=m?`<button class='btn' ${S.hd<0?'disabled':''} onclick='hintDo()'>このカードを捨ててヒントを聞く</button><button class='btn alt' onclick='hintCancel()'>やめる</button>`:(S.hint?'':`<button class='btn alt' ${S.fh?'':S.hand.length<2?'disabled':''} onclick='${S.fh?'hintFree':'hintAsk'}()'>🕊️ シスターのヒントを聞く（${S.fh?'無料':'手札を1枚捨てる'}）</button>`);
+const hd=S.hand.map((c,i)=>m?(i==S.hd?card(c,i,'hSel').replace('class="card','class="card sel'):card(c,i,'hSel')):card(c,i,'pick')).join('');
+set(`${bar()}<div class='scene'>${e.i}</div><div class='win ev${e.rar||0}'><div class='who'>${e.rar==2?'🌈スーパーレアイベント｜':e.rar==1?'★レアイベント｜':''}${e.p}${e.sp?' ✨':''}</div>${e.t}<br><small>${g[0]} ${g[1]}「ゴブ吉、どうする？」</small></div>${hw}<div class='win' style='font-size:13px'>${m?'ヒントの代償に<b>捨てるカード</b>を選んでください。捨てたカードは戻りません。':'使うカードを選べ！（使ったカードは消える）<br>系統が合えば正解、ぴったりなら大正解！連続正解でコンボ！'}</div>${LEG}${ctrl}<div class='hand big'>${hd}</div>${cmbBar()}`);scrollTo(0,y)}
+function hintAsk(){S.hm=1;S.hd=-1;evScreen()}
+function hSel(i){S.hd=S.hd==i?-1:i;evScreen()}
+function hintCancel(){S.hm=0;S.hd=-1;evScreen()}
+function hintDo(){S.hand.splice(S.hd,1);S.hint=hintLine();S.hm=0;S.hd=-1;evScreen()}
+function pick(i){const c=S.hand.splice(i,1)[0],e=S.ev;const g=e.m?(c.t==e.b?2:0):c.t==e.b?2:(c.t==e.o||CAT[c.t]==CAT[e.b]||CAT[c.t]==CAT[e.o]||c.r)?1:0;
+const base=e.m?(g?8:-6):[-1,1,3][g]*e.x,cb=S.combo|0,mu=g?mm(cb):1,pts=fmt(base>0?base*mu:base);S.combo=g?Math.min(10,cb+1):0;
+S.score=fmt(S.score+pts);S.dp=fmt(S.dp+pts);if(!S.dv)S.dv={};S.dv[e.p]=fmt((S.dv[e.p]||0)+pts);
+const v=e.m?{n:0,p:0}:(S.vis[e.p]||(S.vis[e.p]={n:0,p:0}));if(!e.sp&&!e.m){v.n++;v.p+=pts}
+const oo=document.getElementById("orc");if(oo)oo.outerHTML=oracle();
+let bonus="";if(g==2){draw(1);bonus="<br>🃏 カードを1枚補充した！"}
+const q=rnd(G),line=g?q[2]:q[3],d=Math.round(pts*2.5);
+const cl=g?`<div class='cmb'>🔥 COMBO ${S.combo}！${mu>1?` 評価ボーナス ×${mu}`:''}<br><small>次の正解は ×${cmM()}</small></div>`:(cb>0?`<div class='cmb' style='color:#9ab'>💔 COMBO ${cb} が途切れた…</div>`:'');
+const big=g==2?`<div class="good">GOOD!!<br>大正解！</div>`:g==1?`<div class="good" style="font-size:40px">正解！</div>`:`<div class="ng">ハズレ…</div>`;
+app.insertAdjacentHTML("beforeend",`<div class="ov" onclick="this.remove();after()"><div style="text-align:center">${big}<div class="win" style="margin:14px">${c.e} ${c.n} <div class="dnum ${d>0?'up':'dn'}">善良評価 ${d>0?'+':''}${d}</div>${cl}${bonus}<br>${q[0]} ${q[1]}「${line}」</div><small>タップで次へ</small></div></div>`)}
+
+/* ===== v3 ===== */
+const cmbBar=()=>{const c=S.combo|0;return `<div class='cbw ${c?'on':''}'><b>COMBO</b><span class='n'>${c}</span><span>ボーナス ×${cmM()}</span></div>`};
+const rvP=()=>Math.max(.25,Math.min(.8,.45+S.dp*.04));
+function rev(){S.ph=3;const p=S.dp;const good=Math.random()<(p>=6?.65:p>=2?.5:.3);const ks=Object.keys(S.dv||{}).filter(k=>EV2[k]);const pl=ks.length?rnd(ks):rnd(PL).n;const e=rnd(EV2[pl][good?0:1]);S.re={good};
+const pc=Math.round(rvP()*100),hi=good?[8,-5]:[7,-8],lo=good?2:-1,r=v=>(v>0?'+':'')+Math.round(v*2.5);
+set(`${bar()}<div class='scene'>${PL.find(x=>x.n==pl).i}</div><div class='win'><div class='who'>🌙 夜のできごと（${pl}）</div>${pl}での今日の行いが、思わぬ出来事を招いた。<br><b>${e}</b></div><div class='chw'><div class='dlg'><div class='tx'><b>シスター</b>「${good?'…好機、かもしれません。ただし、油断なさらぬよう。':'…厄介ごとのようですね。対処はお任せいたします。'}」</div><div class='pt'>${sp('sis',56)}</div></div></div><div class='rvo'><button class='rvb hi' onclick='rv(1)'><b>🎲 ${good?'ありがたく受ける':'立ち向かう'}</b><div class='pb'><i style='width:${pc}%'></i></div><div class='rr'><em class='up'>成功 ${pc}% ${r(hi[0])}</em><em class='dn'>失敗 ${100-pc}% ${r(hi[1])}</em></div></button><button class='rvb lo' onclick='rv(0)'><b>🛡️ ${good?'謙虚に辞退する':'うまく回避する'}</b><div class='rr'><em class='${lo>0?'up':'dn'}'>確実 ${r(lo)}</em></div></button></div>`)}
+const LQ=[["「故郷をゴブリンに焼かれた…それでも許せというのか？」","心"],["「お前たちの涙など、信じられるものか。」","心"],["「謝って済むと思っているのか！」","心"],["「私がなぜゴブリンを憎むか、わかるか？」","心"],["「本当に、悪いと思っているのか？」","心"],["「誰かを大切に思ったことがあるのか？」","心"],["「口だけなら何とでも言える。行いで示せ！」","力"],["「村人を守る覚悟はあるのか？」","力"],["「剣を向けられても、逃げずにいられるか？」","力"],["「仲間のために、身を張れるのか？」","力"],["「強き者は弱き者を守るものだ。お前はどうだ？」","力"],["「戦わずして、何を証明する？」","力"],["「その言葉に偽りがないと、どう証明する？」","知"],["「ゴブリンは人を襲う悪しき種族。違うか？」","知"],["「証拠を見せろ。この3日間、何をしていた？」","知"],["「井戸に毒を入れたという噂は本当か？」","知"],["「なぜ人間と共に生きようとする？理由を述べよ。」","知"],["「種族の歴史をどう説明する？」","知"]];
+const GP="心:🕊️ 正直に打ち明ける,🙏 誠実に詫びる,🤝 まっすぐ誓う,💎 惜しみなく差し出す,🌸 穏やかに語りかける,😢 涙をこらえず語る,🫂 そっと手を差し伸べる,🙇 深く頭を下げる,💌 心を込めて手紙を渡す;力:🛡️ 堂々と答える,⚔️ 剣を地に置く,🏰 住処を守ると宣言する,💪 仲間のために身を張る,🦾 傷を黙って引き受ける,🪓 一緒に薪を割ろうと言う,🚩 逃げずに立ち向かう,🏋️ 約束の重さを背負う;知:👂 静かに耳を傾ける,🧠 冷静に説き伏せる,📖 3日間の記録を示す,🗣️ 噂の誤りを正す,🧭 君の過去を理解する,🔍 事実を一つずつ並べる,📜 古い和平の例を引く,🎓 博士に弁明させる,🔮 先を見据えて語る;危:😤 威勢よく吠える,😏 ふてぶてしく笑う,🙄 目をそらす,🤡 茶化してごまかす";
+function gDeal(){const a=[];GP.split(';').forEach(t=>{const[k,l]=t.split(':');l.split(',').forEach(x=>{const j=x.indexOf(' ');a.push([x.slice(0,j),x.slice(j+1),[0,0,0],k=='危'?'':k])})});return a.sort(()=>Math.random()-.5).slice(0,10)}
+function gcard(c,n,i){const k=c[3];return `<button class='card gold' ${n?`onclick='gsel(${n},${i})'`:'disabled'}><div class='ct ${k?'k'+k:'kg'}'>${k?CATI[k]+k:'⚠️危険'}</div><div class='ci'>${c[0]}</div><div class='cn'>${c[1]}</div><div class='st'>★</div></button>`}
+function gsel(n,i){lHit(i)}
+function lStart(){const h=10+Math.floor(Math.random()*5);S.alive=[0,1,2,3,4,5,6];S.dead=[];S.L={hp:h,max:h,atk:0,r:0,log:'',st:null};lNext();lScreen()}
+function lNext(){const L=S.L;let q;do{q=rnd(LQ)}while(q===L.st);L.st=q;L.r++}
+function lScreen(){const L=S.L,y=scrollY;set(`<div class='scene boss'>${sp('leia',100)}</div><div class='win'><div class='who'>女騎士レイア（第${L.r}合）</div>${L.st[0]}<br><small>彼女の心に響くのは…${CATI[L.st[1]]}<b>${L.st[1]}</b>（${CATN[L.st[1]]}）系</small>${party()}<div class='hpw'><span>疑い</span><div class='hpb'><i style='width:${L.hp/L.max*100}%'></i></div><span>${L.hp}/${L.max}</span></div>${L.log?`<div class='pen'>${L.log}</div>`:''}</div><div class='win' style='font-size:13px'>切り札を1枚選べ！残り${S.gc.length}枚。系統が合えば大ダメージ、たまに会心の一撃！<br>⚠️危険カードは逆効果。</div><div class='hand big'>${S.gc.map((c,i)=>gcard(c,1,i)).join('')}</div><button class='btn alt' onclick='lAtk()'>⚔️ 剣を抜く（カード不使用／善良評価 -10／乱暴なゴブリン）</button>`);scrollTo(0,y)}
+function lApply(d,da,m,k){const L=S.L;L.hp=Math.max(0,L.hp-d);S.ans+=da;L.log=m+` 善良評価 ${da>=0?'+':''}${Math.round(da*2.5)}`;const v=k&&S.alive.length?rnd(S.alive):-1;if(v>=0){S.alive=S.alive.filter(x=>x!=v);S.dead.push(v);document.body.classList.add('sad');L.log+=`<br>💀 ${G[v][1]}がレイアに斬られた…`}if(!L.hp)lEnd(1);else if(!S.gc.length)lEnd(0);else{lNext();lScreen()}if(v>=0)lDeath(v)}
+function lHit(i){const L=S.L,c=S.gc.splice(i,1)[0];let ms=1,d=0,da=0,m=`${c[0]} ${c[1]}！`;if(!c[3]){da=-2;m+=' レイアは眉をひそめた…'}else{const hit=c[3]==L.st[1],cr=Math.random()<.2;ms=!hit;d=hit?3+(cr?2:0):1;da=hit?(cr?3:2):0;m+=hit?(cr?' 会心！レイアの心が大きく揺れた！':' 響いた…！'):' あまり響いていない…';if(Math.random()<(hit?.15:.5)){da-=1;m+=' レイアが鋭く睨み返した。'}}lApply(d,da,m,ms)}
+function lAtk(){S.L.atk++;lApply(3,-4,'⚔️ 剣を抜いてしまった！レイアは怒りに目を燃やす…')}
+function lEnd(w){const L=S.L;const da=w?(L.atk?0:3):-1;S.ans+=da;set(`<div class='scene'>${sp('leia',100)}</div><div class='win'><div class='who'>${w?'🏆 レイアが剣を下ろした':'…切り札が尽きた'}</div>${w?(L.atk?'力ずくで押し切ってしまった。乱暴なゴブリンという印象は拭えない…':'君たちの言葉が、彼女の疑いを解いていく。'):'レイアの疑いは、晴れきらなかった…。'}${da?`<div class='dnum ${da>0?'up':'dn'}'>善良評価 ${da>0?'+':''}${Math.round(da*2.5)}</div>`:''}</div><button class='btn' onclick='${S.dead.length?"mem()":"leia(4)"}'>…</button>`)}
+
+/* ===== v4 ===== */
+const KEYS=['doc','ang','hap','slp','bas','snz','dop'];
+const party=()=>`<div class='pty'>${KEYS.map((k,i)=>S.alive.includes(i)?sp(k,30):'<span class="gv">🪦</span>').join('')}</div>`;
+function lDeath(v){const ls=['「…邪魔だ。」','「恨むなら、ゴブリンに生まれた己を恨め。」','「…これが、お前たちの答えか。」','「…………。」','「言葉を誤れば、こうなる。」'];app.insertAdjacentHTML('beforeend',`<div class='ov dth' onclick='this.remove()'>${sp(KEYS[v],84)}<div class='ln'><b>${G[v][1]}</b>が、女騎士の剣に倒れた…<br>「${G[v][3]}」<br><br>女騎士レイア${rnd(ls)}</div><small>タップで続ける</small></div>`)}
+function mem(){const n=S.dead.map(i=>'🪦 '+G[i][1]).join('<br>');set(`<div class='scene'><span style='font-size:64px'>🌧️</span></div><div class='win'><div class='who'>… 静かな夕暮れ</div>住処に、いつもの笑い声はなかった。<br>空いたままの寝床と、冷めたスープ。<br>${S.dead.length==7?'誰も、残っていない…。':'残された仲間たちは、黙って空を見上げている。'}<div class='pen'>${n}</div></div><button class='btn' onclick='leia(4)'>…</button>`)}
+function finalR(){const t=evalv(),d=S.dead.length,R=t>=95?'SS':t>=85?'S':t>=70?'A':t>=50?'B':t>=30?'C':'D';const e=t>=90?['👑','完全和解エンド','シスターは剣を地に突き、微笑んだ。「あなたたちは本当に善良なゴブリンだった。…これからも、教会へいらっしゃい」']:t>=70?['🤝','和解エンド','「今日のところは剣を収めます。けれど、これからも見ていますからね」住処は守られた！']:t>=45?['⏳','保留エンド','「判断は一週間後に。またお告げを授けに来ます」住処は首の皮一枚で繋がった…。']:['🔥','滅亡エンド','「…神は、ゴブリンをお赦しにならなかった」シスターの剣が閃き、住処は滅せられた…。'];
+set(`<div class='scene'>${sp('sis',100)}<span style='font-size:48px'>${e[0]}</span></div><div class='win'><div class='who'>${e[1]}</div>${e[2]}${d?`<br><br><small>…けれど、あの席にはもう誰も座らない。失われた仲間の笑い声は、二度と戻らなかった。</small>`:''}</div><div class='win'><b>— 最終リザルト —</b><div class='rkbig ${d?'m':''}'>${R}${d?'-':''}</div><div style='text-align:center'>最終善良評価：${t}／100</div><small>3日間のポイント：${fmt(S.score)}／対決の得点：${S.ans>0?'+':''}${S.ans}</small><div class='pen'>${d?`犠牲：${S.dead.map(i=>G[i][1]).join('、')}（${d}人）`:'🎖️ 仲間は全員生還！'}</div></div><button class='btn' onclick='start()'>もう一度あそぶ</button>`)}
+
+/* ===== v5 ===== */
+function offer(n,k,mid){S.off=[];draw(n,S.off);if(!mid&&!S.off.some(c=>c.r))S.off[Math.floor(Math.random()*n)]=rnd(CARDS.filter(c=>c.r));S.sel=[];S.k=k;S.mid=mid;pickScreen()}
+function dayStart(){S.hand=[];S.ch=0;S.dp=0;S.ph=0;S.dv={};S.combo=S.combo|0;offer(9,5,0)}
+const PN={sis:'シスター',doc:'博士',ang:'おこりん',hap:'ごきげん',slp:'ねむ',bas:'てれ',snz:'くしゃみ',dop:'おとぼけ'};
+const FOREW=['…騎士様は容赦のない方です。言葉を誤れば、仲間の命も危ういでしょう。','…明日、騎士様が見えます。言葉を誤れば、仲間が斬られるかもしれません。'];
+function preLines(){const v=evalv();if(v>=210)return[['sis',`現在の善良評価は<b>${v}</b>。…正直、驚いております。`],['doc','ふむ、計算通りじゃ！この調子なら和解も夢ではないぞい。'],['hap','やったー！みんなで頑張ったもんね！'],['ang','へっ、油断すんなよ。女騎士は強えって噂だぜ。'],['sis',rnd(FOREW)]];
+if(v>=135)return[['sis',`現在の善良評価は<b>${v}</b>。悪くはありませんが、決め手に欠けますね。`],['doc','勝負は五分五分、といったところじゃな。'],['bas','ぼ、僕、緊張してきた…。'],['ang','やるしかねえだろ！'],['sis',rnd(FOREW)]];
+if(v>=60)return[['sis',`現在の善良評価は<b>${v}</b>。…厳しいですね。`],['snz','はっくしょん！…なんか寒気がするぅ。'],['slp','ぐう…あ、逃げたい…。'],['doc','仮説を立て直す時間は、もうないのう…。'],['sis',rnd(FOREW)]];
+return[['sis',`現在の善良評価は<b>${v}</b>。…最低ランクです。神は、あなたたちを見放しかけています。`],['ang','ちっ、なんでこうなった！'],['dop','あれ？ぼくたち、まずいの？'],['bas','ご、ごめんなさい…僕のせいかも…。'],['sis',rnd(FOREW)]]}
+function next(){if(S.day<3){S.day++;dayStart()}else{S.pl=preLines();pt(0)}}
+function pt(i){const l=S.pl[i];if(!l)return leia(0);const last=i==S.pl.length-1;set(`<div class='scene'>🌙</div><div class='chw'><div class='chh'>🌙 決戦前夜</div><div class='dlg'><div class='tx'><b>${PN[l[0]]}</b>「${l[1]}」</div><div class='pt'>${sp(l[0],76)}</div></div></div><button class='btn' onclick='pt(${i+1})'>${last?'…夜が明ける':'次へ'}</button>`)}
+const LR={crit:['「…っ！？ その言葉は…胸に刺さった…」','「…なぜだ。剣を握る手が、震える…」'],hit:['「…ふむ。嘘では、なさそうだな」','「…悪くない答えだ」','「…そうか。まだ信用はできんがな」'],miss:['「…それだけか？何も響かんぞ」','「的外れだ。…覚悟はいいな」','「聞くに堪えん！」'],bad:['「ふざけるな！！」','「…侮辱するつもりか！」']};
+function lStart(){S.alive=[0,1,2,3,4,5,6];S.dead=[];S.L={r:0,hits:0,st:null};lNext();lScreen()}
+function lNext(){const L=S.L;let q;do{q=rnd(LQ)}while(q===L.st);L.st=q;L.r++}
+function lScreen(){const y=scrollY,L=S.L;set(`<div class='scene boss'>${sp('leia',100)}</div><div class='win'><div class='who'>女騎士レイア（第${L.r}合／全3合）</div>${L.st[0]}<br><small>彼女の心に響くのは…${CATI[L.st[1]]}<b>${L.st[1]}</b>（${CATN[L.st[1]]}）系</small>${party()}</div><div class='win' style='font-size:13px'>切り札を1枚選べ！不正解だと仲間が<b>1〜2人</b>斬られる…。<br>⚠️危険カードは必ず2人。</div><div class='hand big'>${S.gc.map((c,i)=>gcard(c,1,i)).join('')}</div>`);scrollTo(0,y)}
+function lHit(i){const L=S.L,c=S.gc.splice(i,1)[0];let da=0,k=0,t;
+if(!c[3]){da=-2;k=2;t='bad'}else if(c[3]==L.st[1]){const cr=Math.random()<.2;da=cr?3:2;t=cr?'crit':'hit';L.hits++}else{da=Math.random()<.5?-1:0;k=Math.random()<.65?1:2;t='miss'}
+const vs=[];for(let j=0;j<k&&S.alive.length;j++){const v=rnd(S.alive);S.alive=S.alive.filter(x=>x!=v);S.dead.push(v);vs.push(v)}if(vs.length)document.body.classList.add('sad');S.ans+=da;
+set(`<div class='scene boss'>${sp('leia',100)}</div><div class='win'><div class='who'>${c[0]} ${c[1]}</div><div class='who' style='color:#fff'>女騎士レイア</div>${rnd(LR[t])}<div class='dnum ${da>0?'up':da<0?'dn':''}'>善良評価 ${da>0?'+':''}${Math.round(da*2.5)}</div>${vs.length?`<div class='pen'>💀 ${vs.map(v=>G[v][1]).join('、')}が斬られた…</div>`:''}</div><div class='win'>${party()}</div><button class='btn' onclick="${L.r>=3?'lEnd()':'lNext();lScreen()'}">${L.r>=3?'決着へ':'次の一合へ'}</button>`);vs.forEach(lDeath)}
+function lEnd(){const h=S.L.hits,da=h>=2?3:h==1?0:-1;S.ans+=da;set(`<div class='scene'>${sp('leia',100)}</div><div class='win'><div class='who'>${h>=2?'🏆 レイアが剣を下ろした':'…三合が終わった'}</div>${h>=2?'君たちの言葉が、彼女の疑いを解いていく。':h?'レイアは黙り込んだ。疑いは晴れきらなかった…。':'言葉は一つも届かなかった…。'}<br><small>響いた答え：${h}/3</small>${da?`<div class='dnum ${da>0?'up':'dn'}'>善良評価 ${da>0?'+':''}${Math.round(da*2.5)}</div>`:''}</div><button class='btn' onclick='${S.dead.length?"mem()":"leia(4)"}'>…</button>`)}
+
+/* ===== v6 rarity ===== */
+CARDS.forEach(c=>c.r=c.r?1:0);
+const shf=a=>a.sort(()=>Math.random()-.5);
+const SRC=[{t:'贈',e:'🎁',n:'おくりもの',r:2,id:'gift',a:'手札+2枚'},{t:'礼',e:'💎',n:'ご褒美',r:2,id:'gem',a:'善良評価+30'},{t:'知',e:'💡',n:'賢者の囁き',r:2,id:'hint',a:'次のヒント無料'},{t:'笑',e:'🎲',n:'運試し',r:2,id:'dice',a:'+60か-30'},{t:'力',e:'💸',n:'取引',r:2,id:'trade',a:'手札-1・善良評価+50'}];
+const SREV=[['🐉','伝説の竜が目覚め、力比べを望んでいる','力','食'],['👸','妖精女王が「心からの贈り物を」と微笑む','贈','笑'],['🧙','大賢者が「真理を述べよ」と問う','知','礼'],['🦄','傷ついたユニコーンが倒れている','癒','贈'],['🌋','火山の精霊が荒ぶっている。歌で鎮めよ','歌','笑']];
+function draw(n,a=S.hand){for(let k=0;k<n;k++){if(Math.random()<.05){a.push({...rnd(SRC)});continue}if(!S.deck.length)S.deck=CARDS.map(c=>c).sort(()=>Math.random()-.5);a.push(S.deck.pop())}}
+function go(n){if(n!=='村'&&Math.random()<.25)return bStart(n);let l=EV[n].filter((e,i)=>!S.used[n+i]);if(!l.length){S.used={};l=EV[n]}const e=rnd(l);S.used[n+EV[n].indexOf(e)]=1;const rr=Math.random(),rar=rr<.08?2:rr<.3?1:0;
+if(rar==2){const q=rnd(SREV);return show({p:n+'（伝説）',i:q[0],t:q[1],b:q[2],o:q[3],x:3,rar:2})}
+show({p:n+(rar?'（レア）':''),i:PL.find(p=>p.n==n).i,t:e[0],b:e[1],o:e[2],x:rar?2:1,rar})}
+function pick(i){const c=S.hand.splice(i,1)[0],e=S.ev,R=c.r|0,id=c.id;
+let g=e.m?(c.t==e.b?2:0):c.t==e.b?2:(c.t==e.o||CAT[c.t]==CAT[e.b]||CAT[c.t]==CAT[e.o]||R)?1:0;
+if(R==2&&!e.m)g=Math.max(g,1)
+const base=e.m?(g?8:-6):[-1,1,3][g]*e.x,cb=S.combo|0;let mu=g?mm(cb):1,ex='';
+if(R==1&&base>0){mu*=1.5;ex='★ レア効果 ×1.5'}
+if(id=='dbl'&&base>0)mu*=2;
+const pts=fmt(base>0?base*mu:base);S.combo=g?Math.min(10,cb+(id=='flame'?2:1)):0;
+S.score=fmt(S.score+pts);S.dp=fmt(S.dp+pts);if(!S.dv)S.dv={};S.dv[e.p]=fmt((S.dv[e.p]||0)+pts);
+const v=e.m?{n:0,p:0}:(S.vis[e.p]||(S.vis[e.p]={n:0,p:0}));if(!e.sp&&!e.m){v.n++;v.p+=pts}
+const oo=document.getElementById("orc");if(oo)oo.outerHTML=oracle();
+let bonus="";if(g==2){draw(id=='sage'?3:1);bonus=`<br>🃏 カードを${id=='sage'?3:1}枚補充した！`}
+if(R==2){ex=`🌈 ${c.n}：${c.a}`;let de=0;if(id=='gift')draw(2);else if(id=='gem')de=30;else if(id=='hint')S.fh=1;else if(id=='dice')de=Math.random()<.5?60:-30;else if(id=='trade'){if(S.hand.length){S.hand.splice(Math.floor(Math.random()*S.hand.length),1);ex+='（手札1枚を失った）'}de=50}
+if(de){const p2=fmt(de/2.5);S.score=fmt(S.score+p2);S.dp=fmt(S.dp+p2);S.dv[e.p]=fmt((S.dv[e.p]||0)+p2);ex+=` → 善良評価 ${de>0?'+':''}${de}`;const o2=document.getElementById('orc');if(o2)o2.outerHTML=oracle()}}
+if(e.rar==1&&g==2){S.hand.push({...rnd(CARDS.filter(x=>x.r==1))});bonus+='<br>★ レアカードを獲得！'}
+if(e.rar==2&&g>=1){S.hand.push({...rnd(SRC)});bonus+='<br>🌈 スーパーレアカードを獲得！'}
+const q=rnd(G),line=g?q[2]:q[3],d=Math.round(pts*2.5);
+const cl=g?`<div class='cmb'>🔥 COMBO ${S.combo}！${mu>1?` 評価ボーナス ×${fmt(mu)}`:''}<br><small>次の正解は ×${cmM()}</small></div>`:(cb>0?`<div class='cmb' style='color:#9ab'>💔 COMBO ${cb} が途切れた…</div>`:'');
+const big=g==2?`<div class="good">GOOD!!<br>大正解！</div>`:g==1?`<div class="good" style="font-size:40px">正解！</div>`:`<div class="ng">ハズレ…</div>`;
+app.insertAdjacentHTML("beforeend",`<div class="ov" onclick="this.remove();after()"><div style="text-align:center">${big}<div class="win" style="margin:14px">${c.e} ${c.n} <div class="dnum ${d>0?'up':'dn'}">善良評価 ${d>0?'+':''}${d}</div>${ex?`<div class='cmb'>${ex}</div>`:''}${cl}${bonus}<br>${q[0]} ${q[1]}「${line}」</div><small>タップで次へ</small></div></div>`)}
+function bHit(i){const b=S.b,c=S.hand.splice(i,1)[0],R=c.r|0,hit=R==2||CAT[c.t]==b.w,d=R==2?5:(hit?2:1)+(R?1:0);b.hp=Math.max(0,b.hp-d);b.log=`${c.e} ${c.n}！ ${R==2?'🌈 圧倒的な一撃！':hit?'弱点を突いた！':'効いているようだ…'} ${d}ダメージ`;b.hp?bScreen():bWin()}
+const RN=['心を込めて手紙を渡す','そっと手を差し伸べる','住処を守ると宣言する','仲間のために身を張る','古い和平の例を引く','博士に弁明させる'];
+const SG=[['🌈','誓いの言葉','sure','必ず響く(会心)'],['💎','祈りの光','gem','響く＋善良評価+30']];
+function gDeal(){const a=[];GP.split(';').forEach(t=>{const[k,l]=t.split(':');l.split(',').forEach(x=>{const j=x.indexOf(' '),n=x.slice(j+1);a.push([x.slice(0,j),n,[0,0,0],k=='危'?'':k,RN.includes(n)?1:0])})});const sg=rnd(SG);return shf([...shf(a.filter(c=>!c[4])).slice(0,6),...shf(a.filter(c=>c[4])).slice(0,3),[sg[0],sg[1],[0,0,0],sg[2]=='guard'?rnd(['力','心','知']):'SR',2,sg[2],sg[3]]])}
+function gcard(c,n,i){const R=c[4]|0,k=c[3];return `<button class="card ${R==2?'sr':R?'rare':''}" ${n?`onclick='gsel(${n},${i})'`:'disabled'}><div class='ct ${R==2?'ksr':k?'k'+k:'kg'}'>${R==2?'🌈 SUPER RARE':k?CATI[k]+k:'⚠️危険'}</div><div class='ci'>${c[0]}</div><div class='cn'>${c[1]}</div>${R==2?`<div class='ab'>${c[6]}</div>`:''}${R?`<div class='st'>${R==2?'✦':'★'}</div>`:''}</button>`}
+function lScreen(){const y=scrollY,L=S.L;set(`<div class='scene boss'>${sp('leia',100)}</div><div class='win'><div class='who'>女騎士レイア（第${L.r}合／全3合）</div>${L.st[0]}<br><small>彼女の心に響くのは…${CATI[L.st[1]]}<b>${L.st[1]}</b>（${CATN[L.st[1]]}）系</small>${party()}${S.shield?`<small>🕊️ 神の加護×${S.shield}</small>`:''}</div><div class='win' style='font-size:13px'>切り札を1枚選べ！不正解だと仲間の命が危うい…。<br>⚠️危険カードは逆効果。★レアは効果大、🌈SRは特別な能力。</div><div class='hand big'>${S.gc.map((c,i)=>gcard(c,1,i)).join('')}</div>`);scrollTo(0,y)}
+function lHit(i){const L=S.L,c=S.gc.splice(i,1)[0],R=c[4]|0,id=c[5];let da=0,k=0,t,ex='';
+if(R==2&&id=='sure'){t='crit';da=3;L.hits++}
+else if(R==2&&id=='gem'){t='hit';da=14;L.hits++}
+else if(R==2&&id=='revive'){t='hit';da=2;L.hits++;if(S.dead.length){const v=S.dead.splice(Math.floor(Math.random()*S.dead.length),1)[0];S.alive.push(v);ex=`✨ ${G[v][1]}が息を吹き返した！`;if(!S.dead.length)document.body.classList.remove('sad')}}
+else if(!c[3]){da=-2;k=2;t='bad'}
+else if(c[3]==L.st[1]){const cr=Math.random()<.2;da=(cr?3:2)+(R==1?1:0);t=cr?'crit':'hit';L.hits++}
+else{da=Math.random()<.5?-1:0;k=Math.random()<.65?1:2;t='miss';if(R==1)k=Math.max(0,k-1)}
+if(id=='guard'&&k){k=0;ex+='🛡️ 盾が仲間を守った！'}
+const sv=Math.min(k,S.shield|0);if(sv){S.shield-=sv;k-=sv;ex+=`${ex?'<br>':''}🕊️ 神の加護が仲間を${sv}人守った！`}
+const vs=[];for(let j=0;j<k&&S.alive.length;j++){const v=rnd(S.alive);S.alive=S.alive.filter(x=>x!=v);S.dead.push(v);vs.push(v)}if(vs.length)document.body.classList.add('sad');S.ans+=da;
+set(`<div class='scene boss'>${sp('leia',100)}</div><div class='win'><div class='who'>${c[0]} ${c[1]}${R==2?'（SR）':R?'（★レア）':''}</div><div class='who' style='color:#fff'>女騎士レイア</div>${rnd(LR[t])}<div class='dnum ${da>0?'up':da<0?'dn':''}'>善良評価 ${da>0?'+':''}${Math.round(da*2.5)}</div>${ex?`<div class='pen'>${ex}</div>`:''}${vs.length?`<div class='pen'>💀 ${vs.map(v=>G[v][1]).join('、')}が斬られた…</div>`:''}</div><div class='win'>${party()}</div><button class="btn" onclick="${L.r>=3?'lEnd()':'lNext();lScreen()'}">${L.r>=3?'決着へ':'次の一合へ'}</button>`);vs.forEach(lDeath)}
+function lDeath(v,j=0){setTimeout(()=>{const d=document.createElement('div');d.className='ov dth';d.innerHTML=`${sp(KEYS[v],72)}<div class='ln'><b>${G[v][1]}</b>が斬られた…</div>`;app.appendChild(d);setTimeout(()=>d.remove(),650)},j*700)}
+
+/* ===== v7 ===== */
+function hintFree(){S.fh=0;S.hint=hintLine();evScreen()}
+function finalR(){const t=evalv(),d=S.dead.length,R=t>=270?'SS':t>=225?'S':t>=180?'A':t>=135?'B':t>=90?'C':'D';const e=t>=270?['👑','完全和解エンド','シスターは剣を地に突き、微笑んだ。「あなたたちは本当に善良なゴブリンだった。…これからも、教会へいらっしゃい」']:t>=210?['🤝','和解エンド','「今日のところは剣を収めます。けれど、これからも見ていますからね」住処は守られた！']:t>=135?['⏳','保留エンド','「判断は一週間後に。またお告げを授けに来ます」住処は首の皮一枚で繋がった…。']:['🔥','滅亡エンド','「…神は、ゴブリンをお赦しにならなかった」シスターの剣が閃き、住処は滅せられた…。'];
+set(`<div class='scene'>${sp('sis',100)}<span style='font-size:48px'>${e[0]}</span></div><div class='win'><div class='who'>${e[1]}</div>${e[2]}${d?`<br><br><small>…けれど、あの席にはもう誰も座らない。失われた仲間の笑い声は、二度と戻らなかった。</small>`:''}</div><div class='win'><b>— 最終リザルト —</b><div class='rkbig ${d?'m':''}'>${R}${d?'-':''}</div><div style='text-align:center'>最終善良評価：${t}／300</div><small>3日間のポイント：${fmt(S.score)}／対決の得点：${S.ans>0?'+':''}${S.ans}</small><div class='pen'>${d?`犠牲：${S.dead.map(i=>G[i][1]).join('、')}（${d}人）`:'🎖️ 仲間は全員生還！'}</div></div><button class='btn' onclick='start()'>もう一度あそぶ</button>`)}
+start();
+</script></body></html>
